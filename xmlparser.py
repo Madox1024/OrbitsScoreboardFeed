@@ -24,7 +24,7 @@ def get_stint_info():
         team_dict['last_time_line'] = result.get('lasttimeline')
         team_dict['pit_stops'] = result.get('nopitstops')
         if result.get('totaltime') == '':
-            team_dict['total_time'] = '00:00:00.'
+            team_dict['total_time'] = '00:00:00.000'
         else:
             team_dict['total_time'] = result.get('totaltime')
         stint_info.append(team_dict)
