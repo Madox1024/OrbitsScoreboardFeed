@@ -1,3 +1,4 @@
+from util import calc_milisec
 from xmlparser import get_stint_info
 
 
@@ -8,14 +9,6 @@ def fix_time(t):
         ft = t
     return str(ft) #must add year to avoid Overflow Error
 
-
-def calc_milisec(time_stamp):
-    milisec = int(time_stamp[-3:])
-    seconds = int(time_stamp[-6:-4]) * 1000
-    minutes = int(time_stamp[-9:-7]) * (60 * 1000)
-    hours = int(time_stamp[-12:-10]) * ((60*1000)*60)
-    total_ms = milisec + seconds + minutes + hours
-    return total_ms
 
 
 def gen_pit_time_list():
