@@ -1,6 +1,8 @@
 from util import calc_millisec, fix_time, stint_check
 from xmlparser import get_stint_info
+import time
 
+refresh_rate = 1
 
 def gen_pit_time_dict():
     stint_info = get_stint_info()
@@ -20,3 +22,4 @@ while True:
             old_pit_time[car_number] = new_pit_time[car_number]
         elif stint_check(old_pit_time[car_number], new_pit_time[car_number]):
             print('Car '+car_number+' needs to pit')
+    time.sleep(refresh_rate)
