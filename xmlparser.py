@@ -7,7 +7,7 @@ root = tree.getroot()
 def get_leader_board():
     leader_board = []
     for result in root.iter('result'):
-        team_dict = {} # rewite as a literal
+        team_dict = {}  # rewite as a literal
         team_dict['position'] = result.get('position')
         team_dict['car_number'] = result.get('no')
         team_dict['team_name'] = result.get('firstname')
@@ -19,7 +19,7 @@ def get_leader_board():
 def get_stint_info():
     stint_info = []
     for result in root.iter('result'):
-        team_dict = {} # rewite as a literal
+        team_dict = {}  # rewite as a literal
         team_dict['car_number'] = result.get('no')
         team_dict['last_time_line'] = result.get('lasttimeline')
         team_dict['pit_stops'] = result.get('nopitstops')
@@ -31,7 +31,9 @@ def get_stint_info():
     return stint_info
 
 
-#def get_race_data():
-   # race_data = {}
-    #for label in root.iter('resultspage'):
-    #return race_data
+def get_race_data():
+    labels = root.findall('label')
+    race_data = {}
+    for label in labels:
+        race_data[label.get('type')] = label.text
+    return race_data
