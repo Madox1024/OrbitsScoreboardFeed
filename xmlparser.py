@@ -20,8 +20,10 @@ def get_stint_info():
 
 
 def get_leader_board():
+    leader_board_tree = ET.parse('Testresults.xml')  # use 'current.xml' not results
+    leader_board_root = leader_board_tree.getroot()
     leader_board = []
-    for result in root.iter('result'):
+    for result in leader_board_root.iter('result'):
         team_dict = {}  # rewite as a literal
         team_dict['position'] = result.get('position')
         team_dict['car_number'] = result.get('no')
@@ -32,7 +34,9 @@ def get_leader_board():
 
 
 def get_race_data():
-    labels = root.findall('label')
+    race_data_tree = ET.parse('Testresults.xml')  # use 'current.xml' not results
+    race_data_root = race_data_tree.getroot()
+    labels = race_data_root.findall('label')
     race_data = {}
     for label in labels:
         race_data[label.get('type')] = label.text

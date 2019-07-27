@@ -1,6 +1,6 @@
 import time
 
-from util import calc_millisec, fix_time
+from util import calc_millisec, fix_time, time_stamp
 from xmlparser import get_stint_info
 
 refresh_rate = 5
@@ -12,9 +12,13 @@ class DriverStint:
         self.pit_time = calc_millisec(fix_time(get_stint_info()[car_num]['total_time']))
         self.last_time_line = get_stint_info()[car_num]['last_time_line']
         self.in_pit = True
+        self.over_stint_triggered = False
 
     def over_stint(self):
-        print('{carnum} is over their 2 hour driver stint'.format(carnum=self.car_num))
+        if not(self.over_stint_triggered):
+            timestamp = fix_time(get_stint_info()[self.car_num]['total_time'])
+            print('{carnum} is over their 2 hour driver stint at {time}'.format(carnum=self.car_num, time=timestamp))
+            self.over_stint_triggered = True
 
     def refresh_pit(self, new_pit):
         self.pit_time = new_pit
@@ -22,7 +26,9 @@ class DriverStint:
     def pit_stop(self, new_time_line, new_pit):
         self.last_time_line = new_time_line
         self.refresh_pit(new_pit)
-        print('Pit Stop: {carnum}'.format(carnum=self.car_num))
+        self.in_pit = True
+        self.over_stint_triggered = False
+        print('Pit Stop: {carnum} at {time}'.format(carnum=self.car_num, time=time_stamp(new_pit)))
 
     def stint_check(self, new_time):
         if new_time - self.pit_time > 7200000: # MS in 2 hours
