@@ -4,6 +4,21 @@ tree = ET.parse('Testresults.xml')  # use 'current.xml' not results
 root = tree.getroot()
 
 
+def get_stint_info():
+    stint_tree = ET.parse('Testresults.xml')  # use 'current.xml' not results
+    stint_root = stint_tree.getroot()
+    stint_info = {}
+    for result in stint_root.iter('result'):
+        team_dict = {}  # rewite as a literal
+        team_dict['last_time_line'] = result.get('lasttimeline')
+        if result.get('totaltime') == '':
+            team_dict['total_time'] = '00:00:00.000'
+        else:
+            team_dict['total_time'] = result.get('totaltime')
+        stint_info[result.get('no')] = team_dict
+    return stint_info
+
+
 def get_leader_board():
     leader_board = []
     for result in root.iter('result'):
