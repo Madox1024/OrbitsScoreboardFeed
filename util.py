@@ -16,9 +16,3 @@ def fix_time(t):
         ft = t
     return str(ft)
 
-
-def stint_check(old_pit, new_pit):
-    if new_pit - old_pit > 7200000:  # millisec in 2 hours
-        return True
-    else:
-        return False
