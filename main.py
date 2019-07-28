@@ -1,9 +1,10 @@
-import os
 import json
+import os
 import time
+
 from xmlparser import get_leader_board
 
-refresh_rate = 0.5  # refresh check every x secs
+refresh_rate = 0.5
 
 
 def mod_time():
