@@ -2,10 +2,12 @@ import xml.etree.ElementTree as ET
 
 tree = ET.parse('Testresults.xml')  # use 'current.xml' not results
 root = tree.getroot()
+# VB ^ You can delete this now, right?
 
 
 def get_stint_info():
     stint_tree = ET.parse('Testresults.xml')  # use 'current.xml' not results
+    # VB Should definitely change all these methods to take the filename as a parameter
     stint_root = stint_tree.getroot()
     stint_info = {}
     for result in stint_root.iter('result'):

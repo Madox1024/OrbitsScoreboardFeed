@@ -1,0 +1,2 @@
+# you can add files, directories, and wildcards to this file, and they will become invisible to git (unless they're already or manually added)
+.idea/
