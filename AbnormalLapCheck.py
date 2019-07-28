@@ -36,7 +36,7 @@ class TeamLapCheck:
     def drop_out_check(self):
         race_time = calc_millisec(self.race_time)
         total_time = calc_millisec(self.total_time)
-        if race_time - total_time > 5000:  #5 min
+        if race_time - total_time > 600000:  # 10 min
             return True
         else:
             return False
@@ -44,9 +44,11 @@ class TeamLapCheck:
     def check_time(self, last_time):
         self.refresh_info()
         avg_time_ms = calc_millisec(self.avg_lap_time)
-        if avg_time_ms < last_time - 1000:  #  1 min
+        is_1min_over = avg_time_ms <= (last_time - 60000)
+        is_double_over = avg_time_ms * 2 <= last_time
+        if is_1min_over and not is_double_over:  # 1 min
             self.long_lap()
-        elif avg_time_ms * 2 <= last_time:
+        elif is_double_over and not self.drop_out_check():
             self.missed_lap()
-        elif drop_out_check() and not self.drop_out_triggered:
+        elif self.drop_out_check() and not self.drop_out_triggered:
             self.drop_out()
