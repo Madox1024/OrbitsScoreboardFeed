@@ -8,20 +8,23 @@ refreshrate = 1
 
 class TeamLapCheck:
 
-    def __init__(self, car_num):
+    def __init__(self, car_num, init_leader_board, init_race_data):
         self.car_num = car_num
+        self.initial_race_data = init_race_data
+        self.initial_leader_board = init_leader_board
+        self.avg_lap_time = self.initial_leader_board[car_num]['avg_lap_time']
+        self.since_pit = self.initial_leader_board[car_num]['since_pit']
+        self.last_time = self.initial_leader_board[car_num]['last_time']
+        self.total_time = self.initial_leader_board[car_num]['total_time']
+        self.race_time = self.initial_race_data['racetime']
         self.drop_out_triggered = False
-        self.avg_lap_time = get_leader_board()[car_num]['avg_lap_time']
-        self.since_pit = get_leader_board()[car_num]['since_pit']
-        self.last_time = get_leader_board()[car_num]['last_time']
-        self.total_time = get_leader_board()[car_num]['total_time']
-        self.race_time = get_race_data()['racetime']
 
     def refresh_info(self):
-        self.avg_lap_time = get_leader_board()[self.car_num]['avg_lap_time']
-        self.since_pit = get_leader_board()[self.car_num]['since_pit']
-        self.last_time = get_leader_board()[self.car_num]['last_time']
-        self.total_time = get_leader_board()[self.car_num]['total_time']
+        leader_board = get_leader_board
+        self.avg_lap_time = leader_board()[self.car_num]['avg_lap_time']
+        self.since_pit = leader_board()[self.car_num]['since_pit']
+        self.last_time = leader_board()[self.car_num]['last_time']
+        self.total_time = leader_board()[self.car_num]['total_time']
         self.race_time = get_race_data()['racetime']
 
     def long_lap(self):
