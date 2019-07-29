@@ -52,7 +52,8 @@ while True:
 
     for driver in driver_stint_list:
         if driver.car_num not in stint_info:
-            instantiate_driver_stint()  # this is not working for car_num changes, still get key error
+            instantiate_driver_stint()
+            break
 
         new_driver_info = stint_info[driver.car_num]
         driver.last_time_line = new_driver_info['last_time_line']
