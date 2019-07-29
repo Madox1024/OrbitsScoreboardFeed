@@ -10,7 +10,7 @@ Take a wild guess... parses xml and generates dicts and lists to be used elsewhe
 
 DriverStintCheck:
 Tracks each team and monitors their stint time, if a team has over 2 hours since last pit it will trigger a warning msg.
-Also prints pit times
+Resets with pit times and triggers pit msg
 
 AbnormalLapCheck.py
 Unfinished! Tracks each team and checks for long laps( > 1 min over avg) missed laps ( > double avg lap time) or dropouts ( more than 10 mins off track)
