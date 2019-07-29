@@ -1,6 +1,7 @@
 # OrbitsScoreboardFeed Work in progress
 
 This script is designed to parse the .xml data feed from MyLaps's Orbits 4 Scoring software and extract useful information and functionality
+.xml data feed is overwritten ~.5sec
 
 Main.py:
 Watches for changes to the xml data feed, when the xml is modified it genreates a json file with leaderboard info
