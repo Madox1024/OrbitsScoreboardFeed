@@ -1,6 +1,6 @@
 import unittest
 
-from util import calc_millisec
+from Util import calc_millisec
 
 
 class MyTestCase(unittest.TestCase):

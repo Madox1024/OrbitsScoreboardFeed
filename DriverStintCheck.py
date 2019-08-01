@@ -1,7 +1,7 @@
 import time
 
-from util import calc_millisec, fix_time, gen_time_stamp
-from xmlparser import get_stint_info
+from Util import calc_millisec, fix_time, gen_time_stamp
+from XMLParser import get_stint_info
 
 refresh_rate = 5
 
@@ -42,32 +42,33 @@ def instantiate_driver_stint():
     driver_stint_list = [DriverStint(team, got_stint_info) for team in got_stint_info]
 
 
-instantiate_driver_stint()
+def start_driver_stint_check():
+    instantiate_driver_stint()
+    while True:
 
-while True:
-
-    stint_info = get_stint_info()
-    if len(driver_stint_list) != len(stint_info):
-        instantiate_driver_stint()
-
-    for driver in driver_stint_list:
-        if driver.car_num not in stint_info:
+        stint_info = get_stint_info()
+        if len(driver_stint_list) != len(stint_info):
             instantiate_driver_stint()
-            break
 
-        new_driver_info = stint_info[driver.car_num]
-        driver.last_time_line = new_driver_info['last_time_line']
-        new_lap_time = calc_millisec(new_driver_info['total_time'])
+        for driver in driver_stint_list:
+            if driver.car_num not in stint_info:
+                instantiate_driver_stint()
+                break
+                #  figure out a way to pass changed car num info?
 
-        if driver.last_time_line == "Start/Finish":
-            driver.in_pit = False
-            if driver.stint_check(new_lap_time)and not driver.over_stint_triggered:
-                driver.over_stint()
-                current_time_stamp = fix_time(stint_info[driver.car_num]['total_time'])
-                print('{carnum} is over their 2 hour driver stint at {time}'.format(carnum=driver.car_num,
-                                                                                    time=current_time_stamp))
+            new_driver_info = stint_info[driver.car_num]
+            driver.last_time_line = new_driver_info['last_time_line']
+            new_lap_time = calc_millisec(new_driver_info['total_time'])
 
-        elif not driver.in_pit:
-            driver.pit_stop(new_driver_info['last_time_line'], new_lap_time)
-            print('Pit Stop: {carnum} at {time}'.format(carnum=driver.car_num, time=gen_time_stamp(new_lap_time)))
-    time.sleep(refresh_rate)
+            if driver.last_time_line == "Start/Finish":
+                driver.in_pit = False
+                if driver.stint_check(new_lap_time) and not driver.over_stint_triggered:
+                    driver.over_stint()
+                    current_time_stamp = fix_time(stint_info[driver.car_num]['total_time'])
+                    print('{carnum} is over their 2 hour driver stint at {time}'.format(carnum=driver.car_num,
+                                                                                        time=current_time_stamp))
+
+            elif not driver.in_pit:
+                driver.pit_stop(new_driver_info['last_time_line'], new_lap_time)
+                print('Pit Stop: {carnum} at {time}'.format(carnum=driver.car_num, time=gen_time_stamp(new_lap_time)))
+        time.sleep(refresh_rate)

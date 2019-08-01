@@ -1,5 +1,5 @@
-from util import calc_millisec
-from xmlparser import get_leader_board, get_race_data
+from Util import calc_millisec
+from XMLParser import get_leader_board, get_race_data
 
 # WIP
 
@@ -20,11 +20,11 @@ class TeamLapCheck:
         self.drop_out_triggered = False
 
     def refresh_info(self):
-        leader_board = get_leader_board
-        self.avg_lap_time = leader_board()[self.car_num]['avg_lap_time']
-        self.since_pit = leader_board()[self.car_num]['since_pit']
-        self.last_time = leader_board()[self.car_num]['last_time']
-        self.total_time = leader_board()[self.car_num]['total_time']
+        leader_board = get_leader_board()
+        self.avg_lap_time = leader_board[self.car_num]['avg_lap_time']
+        self.since_pit = leader_board[self.car_num]['since_pit']
+        self.last_time = leader_board[self.car_num]['last_time']
+        self.total_time = leader_board[self.car_num]['total_time']
         self.race_time = get_race_data()['racetime']
 
     def long_lap(self):
