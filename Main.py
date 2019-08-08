@@ -1,8 +1,7 @@
 import os
 
-from XMLParser import get_race_data, get_stint_info, parse_lap_times
 from Util import calc_millisec
-
+from XMLParser import get_race_data, get_stint_info, parse_lap_times
 
 race_data = get_race_data()
 stint_info = get_stint_info()
