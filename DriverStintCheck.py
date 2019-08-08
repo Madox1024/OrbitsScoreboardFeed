@@ -8,11 +8,12 @@ refresh_rate = 5
 
 class DriverStint:
 
-    def __init__(self, car_num, init_stint_info):
-        self.car_num = car_num
+    def __init__(self, reg_num, init_stint_info):
+        self.reg_num = reg_num
         self.initial_stint_info = init_stint_info
-        self.pit_time = calc_millisec(self.initial_stint_info[car_num]['total_time'])
-        self.last_time_line = self.initial_stint_info[car_num]['last_time_line']
+        self.car_num = self.initial_stint_info[reg_num]['car_number']
+        self.pit_time = calc_millisec(self.initial_stint_info[reg_num]['total_time'])
+        self.last_time_line = self.initial_stint_info[reg_num]['last_time_line']
         self.in_pit = True
         self.over_stint_triggered = False
 
@@ -37,9 +38,11 @@ class DriverStint:
 
 
 def instantiate_driver_stint():
-    global driver_stint_list
     got_stint_info = get_stint_info()
-    driver_stint_list = [DriverStint(team, got_stint_info) for team in got_stint_info]
+    driver_stint_dict = {}
+    for team in got_stint_info:
+        driver_stint_dict[team]: DriverStint(team, got_stint_info)
+    return driver_stint_dict
 
 
 def start_driver_stint_check():

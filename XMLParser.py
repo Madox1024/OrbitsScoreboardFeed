@@ -9,13 +9,13 @@ def get_stint_info():
     stint_root = stint_tree.getroot()
     stint_info = {}
     for result in stint_root.iter('result'):
-        team_dict = {}
-        team_dict['last_time_line'] = result.get('lasttimeline')
+        team_dict = {'last_time_line': result.get('lasttimeline')
+                     'car_number': result.get('no')}
         if result.get('totaltime') == '':
             team_dict['total_time'] = '00:00:00.000'
         else:
             team_dict['total_time'] = result.get('totaltime')
-        stint_info[result.get('no')] = team_dict
+        stint_info[result.get('regnumber')] = team_dict
     return stint_info
 
 

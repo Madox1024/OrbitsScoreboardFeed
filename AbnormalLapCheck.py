@@ -30,7 +30,7 @@ class TeamLapCheck:
     def long_lap(self):
         pass
 
-    def missed_lap(self):
+    def over_double_lap(self):
         pass
 
     def drop_out(self):
@@ -48,10 +48,10 @@ class TeamLapCheck:
         self.refresh_info()
         avg_time_ms = calc_millisec(self.avg_lap_time)
         is_1min_over = avg_time_ms <= (last_time - 60000)
-        is_double_over = avg_time_ms * 2 <= last_time
-        if is_1min_over and not is_double_over:  # 1 min
+        is_over_double = avg_time_ms * 2 <= last_time
+        if is_1min_over and not is_over_double:  # 1 min
             self.long_lap()
-        elif is_double_over and not self.drop_out_check():
-            self.missed_lap()
+        elif is_over_double:
+            self.over_double_lap()
         elif self.drop_out_check() and not self.drop_out_triggered:
             self.drop_out()
