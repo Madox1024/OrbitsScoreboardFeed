@@ -15,8 +15,8 @@ def gen_time_stamp(milliseconds):
     total_seconds = milliseconds/1000
 
     millisec = millisecond_str[-3:]
-    second = int(total_seconds%60)
-    minute = int((total_seconds/60)%60)
+    second = int(total_seconds % 60)
+    minute = int((total_seconds/60) % 60)
     hour = int((total_seconds/60)/60)
     return '{hour}:{minute}:{second}.{millisec}'.format(hour=hour, minute=minute, second=second, millisec=millisec)
 
