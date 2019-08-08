@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-
+import csv
 
 xml = 'Testresults.xml'  # use 'current.xml' not results
 
@@ -45,3 +45,21 @@ def get_race_data():
     for label in labels:
         race_data[label.get('type')] = label.text
     return race_data
+
+
+def parse_lap_times():
+    with open('TestLapTimes.csv') as lap_times_csv:
+        lap_times_obj = csv.reader(lap_times_csv)
+        lap_times_dict = {}
+        for row in lap_times_obj:
+            if len(row) == 1:
+                car_number_stripped = row[0][:3].strip()
+                car_number = car_number_stripped.strip(" -")
+
+            elif row[-1] != 'Speed':
+                if car_number in lap_times_dict:
+                    lap_times_dict[car_number][row[1]] = row[0]
+                else:
+                    lap_times_dict[car_number] = {}
+                    lap_times_dict[car_number][row[1]] = row[0]
+    return lap_times_dict
