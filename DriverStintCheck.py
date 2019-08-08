@@ -1,7 +1,7 @@
 import time
 
 from Util import calc_millisec, fix_time, gen_time_stamp
-from XMLParser import get_stint_info
+from Parser import get_stint_info
 
 refresh_rate = 5
 

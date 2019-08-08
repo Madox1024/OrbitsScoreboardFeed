@@ -1,5 +1,5 @@
 from Util import calc_millisec
-from XMLParser import get_leader_board, get_race_data
+from Parser import get_leader_board, get_race_data
 
 # WIP
 

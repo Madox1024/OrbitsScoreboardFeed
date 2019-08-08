@@ -2,7 +2,7 @@ import json
 import os
 import time
 
-from XMLParser import get_leader_board
+from Parser import get_leader_board
 
 refresh_rate = 0.5
 

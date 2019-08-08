@@ -9,8 +9,9 @@ def get_stint_info():
     stint_root = stint_tree.getroot()
     stint_info = {}
     for result in stint_root.iter('result'):
-        team_dict = {'last_time_line': result.get('lasttimeline')
-                     'car_number': result.get('no')}
+        team_dict = {'last_time_line': result.get('lasttimeline'),
+                     'car_number': result.get('no')
+                     }
         if result.get('totaltime') == '':
             team_dict['total_time'] = '00:00:00.000'
         else:
@@ -45,6 +46,18 @@ def get_race_data():
     for label in labels:
         race_data[label.get('type')] = label.text
     return race_data
+
+
+def get_last_pit_lap():
+    pit_lap_tree = ET.parse(xml)
+    pit_lap_root = pit_lap_tree.getroot()
+    pit_lap_info = {}
+    for result in pit_lap_root.iter('result'):
+        team_dict = {
+            'last_pit_lap': result.get('lastpitstop')
+        }
+        pit_lap_info[result.get('no')] = team_dict
+    return pit_lap_info
 
 
 def parse_lap_times():
