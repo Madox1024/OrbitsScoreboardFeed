@@ -1,5 +1,5 @@
-import xml.etree.ElementTree as ET
 import csv
+import xml.etree.ElementTree as ET
 
 xml = 'Testresults.xml'  # use 'current.xml' not results
 
@@ -26,6 +26,7 @@ def get_leader_board():
     leader_board = {}
     for result in leader_board_root.iter('result'):
         team_dict = {
+            'car_num': result.get('no'),
             'position': result.get('position'),
             'team_name': result.get('firstname'),
             'avg_lap_time': result.get('averagetime'),
@@ -34,7 +35,7 @@ def get_leader_board():
             'total_time': result.get('totaltime')
             # add more fields
         }
-        leader_board[result.get('no')] = team_dict
+        leader_board[result.get('regnumber')] = team_dict
     return leader_board
 
 
@@ -65,7 +66,7 @@ def parse_lap_times():
         lap_times_obj = csv.reader(lap_times_csv)
         lap_times_dict = {}
         for row in lap_times_obj:
-            if len(row) == 1:
+            if len(row[0]) > 10:
                 car_number_stripped = row[0][:3].strip()
                 car_number = car_number_stripped.strip(" -")
 

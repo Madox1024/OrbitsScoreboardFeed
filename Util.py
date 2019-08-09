@@ -23,6 +23,8 @@ def gen_time_stamp(milliseconds):
 
 def fix_time(t):
     default = '00:00:00.000'
+    if t[-4] != '.':
+        t = t + '.000'
     if len(t) < 12:
         result = default[:12-len(t)]+t
     else:
