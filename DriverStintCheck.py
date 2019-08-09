@@ -37,12 +37,11 @@ class DriverStint:
             return False
 
 
-race_data = get_race_data()
-last_pit_lap = get_last_pit_lap()
-lap_times = parse_lap_times()
+def get_last_pit_dict():
+    race_data = get_race_data()
+    last_pit_lap = get_last_pit_lap()
+    lap_times = parse_lap_times()
 
-
-def get_old_pits():
     current_time = calc_millisec(race_data['timeofday'])  # must add '.000' b/c race_data doesn't include ms
     race_time = calc_millisec(race_data['racetime'])
     race_time_diff = abs(current_time - race_time)
@@ -86,8 +85,20 @@ def instantiate_driver_stint():
     return driver_stint_dict
 
 
-def start_driver_stint_check():
+def instantiate_with_old_pit_times():
     driver_stint_dict = instantiate_driver_stint()
+    last_pit_dict = get_last_pit_dict()
+    for driver in driver_stint_dict:
+        if driver.car_num in last_pit_dict:
+            driver.refresh_pit(last_pit_dict[driver.car_num])
+    return driver_stint_dict
+
+
+def start_driver_stint_check(restart):
+    if not restart:
+        driver_stint_dict = instantiate_driver_stint()
+    else:
+        driver_stint_dict = instantiate_with_old_pit_times()
     while True:
 
         stint_info = get_stint_info()
