@@ -14,5 +14,5 @@ def start_monitors():
     start_driver_stint_check(True)
     start_leader_board_feed()
     start_abnormal_lap_check()
+    #  how can I start all 3 of these threads, currently it hangs up of the first WT loop
 
-start_monitors()

@@ -53,7 +53,9 @@ class TeamLapCheck:
             return False
 
     def normal_lap_check(self):
-        if abs(calc_millisec(self.last_time) - calc_millisec(self.avg_lap_time)) < 30 * 1000:  # 30 secs
+        abs_lap_diff = abs(calc_millisec(self.last_time) - calc_millisec(self.avg_lap_time))
+        if abs_lap_diff < 30 * 1000 and (not self.drop_out_triggered):  # 30 secs
+            # will not reset after drop_out, figure out a way to reset after dropout
             return True
         else:
             return False
@@ -64,13 +66,13 @@ class TeamLapCheck:
         is_1min_over = avg_time_ms <= (last_time - 60000)
         is_over_double = avg_time_ms * 2 <= last_time
         not_triggered = not self.msg_triggered and not self.drop_out_triggered
-        if is_1min_over and not is_over_double and not_triggered:
+        if is_1min_over and (not is_over_double) and not_triggered:
             self.long_lap()
             print('Car {carnum} has a long lap at {time}'.format(carnum=self.car_num, time=self.total_time))
         elif is_over_double and not_triggered:
             self.over_double_lap()
             print('Car {carnum} might have missed a lap at {time}'.format(carnum=self.car_num, time=self.total_time))
-        elif self.drop_out_check() and not self.drop_out_triggered:
+        elif self.drop_out_check() and not_triggered:
             self.drop_out()
             print('Car {carnum} is not hitting, last crossing at {time}'.format(carnum=self.car_num,
                                                                                 time=self.total_time))

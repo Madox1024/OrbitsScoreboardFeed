@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 from Util import calc_millisec
 
-xml = 'Testresults.xml'  # use 'current.xml' not results
+xml = 'current.xml'  # use 'current.xml' not results
 
 
 def get_stint_info():
@@ -63,7 +63,7 @@ def get_last_pit_lap():
 
 
 def parse_lap_times():
-    with open('TestLapTimes.csv') as lap_times_csv:
+    with open('CurrentLapTimes') as lap_times_csv:
         lap_times_obj = csv.reader(lap_times_csv)
         lap_times_dict = {}
         for row in lap_times_obj:
