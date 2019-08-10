@@ -12,9 +12,8 @@ class TeamLapCheck:
         self.reg_num = reg_num
         self.initial_race_data = init_race_data
         self.initial_leader_board = init_leader_board
-        self.car_num = self.initial_leader_board[reg_num]['no']
+        self.car_num = self.initial_leader_board[reg_num]['car_num']
         self.avg_lap_time = self.initial_leader_board[reg_num]['avg_lap_time']
-        self.since_pit = self.initial_leader_board[reg_num]['since_pit']
         self.last_time = self.initial_leader_board[reg_num]['last_time']
         self.total_time = self.initial_leader_board[reg_num]['total_time']
         self.race_time = self.initial_race_data['racetime']
@@ -24,9 +23,8 @@ class TeamLapCheck:
 
     def refresh_info(self):
         leader_board = get_leader_board()
-        self.car_num = leader_board[self.reg_num]['no']
+        self.car_num = leader_board[self.reg_num]['car_num']
         self.avg_lap_time = leader_board[self.reg_num]['avg_lap_time']
-        self.since_pit = leader_board[self.reg_num]['since_pit']
         self.last_time = leader_board[self.reg_num]['last_time']
         self.total_time = leader_board[self.reg_num]['total_time']
         self.race_time = get_race_data()['racetime']
@@ -60,9 +58,51 @@ class TeamLapCheck:
         is_over_double = avg_time_ms * 2 <= last_time
         if is_1min_over and not is_over_double:
             self.long_lap()
+            print('Car {carnum} has a long lap at {time}'.format(carnum=self.car_num, time=self.total_time))
         elif is_over_double:
             self.over_double_lap()
+            print('Car {carnum} might have missed a lap at {time}'.format(carnum=self.car_num, time=self.total_time))
         elif self.drop_out_check() and not self.drop_out_triggered:
             self.drop_out()
+            print('Car {carnum} is not hitting, last crossing at {time}'.format(carnum=self.car_num,
+                                                                                time=self.total_time))
         else:
             self.normal_lap()
+
+
+def instantiate_team_lap_check():
+    leader_board = get_leader_board()
+    race_data = get_race_data()
+    team_obj_dict = {}
+    for team in leader_board:
+        team_obj_dict[team] = TeamLapCheck(team, leader_board, race_data)
+    return team_obj_dict
+
+
+def add_driver(driver_dict, leader_board):
+    for team in leader_board:
+        if team not in driver_dict:
+            new_team_obj = TeamLapCheck(team, get_leader_board(), get_race_data())
+            return new_team_obj
+
+
+def start_abnormal_lap_check():
+    team_obj_dict = instantiate_team_lap_check()
+    while True:
+
+        leader_board = get_leader_board()
+        if len(team_obj_dict) < len(leader_board):
+            new_driver = add_driver(team_obj_dict, leader_board)
+            team_obj_dict[new_driver.reg_num] = new_driver
+
+        for driver_key in team_obj_dict:
+            driver = team_obj_dict[driver_key]
+            if driver.reg_num not in leader_board:
+                instantiate_team_lap_check()
+                break
+            if get_leader_board()[driver.reg_num]['last_time'] != 'IN PIT' and get_leader_board()[driver.reg_num]['last_time'] != '':
+                new_lap_time = calc_millisec(get_leader_board()[driver.reg_num]['last_time'])
+                driver.check_time(new_lap_time)
+                driver.refresh_info()
+start_abnormal_lap_check()
+ #  why is this repeating msgs?

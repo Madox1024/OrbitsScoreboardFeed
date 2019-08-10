@@ -1,9 +1,9 @@
 import time
 
-from Parser import get_race_data, get_stint_info, get_last_pit_lap, parse_lap_times
+from Parser import get_last_pit_dict, get_stint_info
 from Util import calc_millisec, fix_time, gen_time_stamp
 
-refresh_rate = 5
+refresh_rate = 1
 
 
 class DriverStint:
@@ -37,35 +37,6 @@ class DriverStint:
             return False
 
 
-def get_last_pit_dict():
-    race_data = get_race_data()
-    last_pit_lap = get_last_pit_lap()
-    lap_times = parse_lap_times()
-
-    current_time = calc_millisec(race_data['timeofday'])  # must add '.000' b/c race_data doesn't include ms
-    race_time = calc_millisec(race_data['racetime'])
-    race_time_diff = abs(current_time - race_time)
-
-    last_pit_laps = {}
-    for team in last_pit_lap:
-        last_pit_laps[team] = last_pit_lap[team]['last_pit_lap']  # populating last_pit_laps w/ {car_num: lastpitlap #}
-
-    team_last_pit_dict = {}
-    for car in last_pit_laps:
-        if car not in lap_times:
-            team_last_pit_dict[car] = "0"  # LapTimes.csv drops cars w/ no passings, must avoid key error
-
-        elif current_time >= race_time:
-            last_pit_tod = calc_millisec(lap_times[car][last_pit_laps[car]])  # fetching respective lap times
-            team_last_pit_dict[car] = last_pit_tod - race_time_diff           # using car number and selecting last pit
-
-        else:
-            last_pit_tod = calc_millisec(lap_times[car][last_pit_laps[car]])  # this accounts for races that
-            team_last_pit_dict[car] = last_pit_tod + race_time_diff                  # run past 23:59:59 (TOD)
-
-    return team_last_pit_dict
-
-
 def missing_driver(car_num):
     print('Car {carnum} is missing from the scoreboard feed and is no longer being monitored!'.format(carnum=car_num))
 
@@ -73,41 +44,44 @@ def missing_driver(car_num):
 def add_driver(driver_dict, stint_info):
     for driver in stint_info:
         if driver not in driver_dict:
-            new_driver_stint = DriverStint(driver, stint_info)
-            return new_driver_stint
+            new_driver_obj = DriverStint(driver, stint_info)
+            return new_driver_obj
 
 
 def instantiate_driver_stint():
     got_stint_info = get_stint_info()
     driver_stint_dict = {}
     for team in got_stint_info:
-        driver_stint_dict[team]: DriverStint(team, got_stint_info)
+        driver_stint_dict[team] = DriverStint(team, got_stint_info)
     return driver_stint_dict
 
 
 def instantiate_with_old_pit_times():
     driver_stint_dict = instantiate_driver_stint()
     last_pit_dict = get_last_pit_dict()
-    for driver in driver_stint_dict:
+    for driver_key in driver_stint_dict:
+        driver = driver_stint_dict[driver_key]
         if driver.car_num in last_pit_dict:
             driver.refresh_pit(last_pit_dict[driver.car_num])
     return driver_stint_dict
 
 
 def start_driver_stint_check(restart):
-    if not restart:
-        driver_stint_dict = instantiate_driver_stint()
-    else:
+    if restart:
         driver_stint_dict = instantiate_with_old_pit_times()
+    else:
+        driver_stint_dict = instantiate_driver_stint()
+
     while True:
 
         stint_info = get_stint_info()
         if len(driver_stint_dict) < len(stint_info):
             new_driver = add_driver(driver_stint_dict, stint_info)
             driver_stint_dict[new_driver.reg_num] = new_driver
-            print('Car {carnum} successfully added and is being monitored')
+            print('Car {carnum} successfully added and is being monitored'.format(carnum=new_driver.car_num))
 
-        for driver in driver_stint_dict:
+        for driver_key in driver_stint_dict:
+            driver = driver_stint_dict[driver_key]
             if driver.reg_num not in stint_info:
                 missing_driver(driver.car_num)
                 break

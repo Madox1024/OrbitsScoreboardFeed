@@ -1,6 +1,8 @@
 import csv
 import xml.etree.ElementTree as ET
 
+from Util import calc_millisec
+
 xml = 'Testresults.xml'  # use 'current.xml' not results
 
 
@@ -31,7 +33,6 @@ def get_leader_board():
             'team_name': result.get('firstname'),
             'avg_lap_time': result.get('averagetime'),
             'last_time': result.get('lasttime'),
-            'since_pit': result.get('laps') - result.get('lastpitstop'),
             'total_time': result.get('totaltime')
             # add more fields
         }
@@ -77,3 +78,32 @@ def parse_lap_times():
                     lap_times_dict[car_number] = {}
                     lap_times_dict[car_number][row[1]] = row[0]
     return lap_times_dict
+
+
+def get_last_pit_dict():
+    race_data = get_race_data()
+    last_pit_lap = get_last_pit_lap()
+    lap_times = parse_lap_times()
+
+    current_time = calc_millisec(race_data['timeofday'])  # must add '.000' b/c race_data doesn't include ms
+    race_time = calc_millisec(race_data['racetime'])
+    race_time_diff = abs(current_time - race_time)
+
+    last_pit_laps = {}
+    for team in last_pit_lap:
+        last_pit_laps[team] = last_pit_lap[team]['last_pit_lap']  # populating last_pit_laps w/ {car_num: lastpitlap #}
+
+    team_last_pit_dict = {}
+    for car in last_pit_laps:
+        if car not in lap_times:
+            team_last_pit_dict[car] = "0"  # LapTimes.csv drops cars w/ no passings, must avoid key error
+
+        elif current_time >= race_time:
+            last_pit_tod = calc_millisec(lap_times[car][last_pit_laps[car]])  # fetching respective lap times
+            team_last_pit_dict[car] = last_pit_tod - race_time_diff           # using car number and selecting last pit
+
+        else:
+            last_pit_tod = calc_millisec(lap_times[car][last_pit_laps[car]])  # this accounts for races that
+            team_last_pit_dict[car] = last_pit_tod + race_time_diff                  # run past 23:59:59 (TOD)
+
+    return team_last_pit_dict
