@@ -115,4 +115,3 @@ def start_abnormal_lap_check():
                 driver.check_time(new_lap_time)
                 driver.refresh_info()
         time.sleep(refreshrate)
-start_abnormal_lap_check()
