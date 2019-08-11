@@ -24,7 +24,6 @@ def get_stint_info():
             stint_info[result.get('regnumber')] = team_dict
         return stint_info
     except ET.ParseError:
-        print('parse error caught: get_stint_info')
         time.sleep(parse_wait)
         return get_stint_info()
 
@@ -47,7 +46,6 @@ def get_leader_board():
             leader_board[result.get('regnumber')] = team_dict
         return leader_board
     except ET.ParseError:
-        print('parse error caught: get_leader_board')
         time.sleep(parse_wait)
         return get_leader_board()
 
@@ -62,7 +60,6 @@ def get_race_data():
             race_data[label.get('type')] = label.text
         return race_data
     except ET.ParseError:
-        print('parse error caught: get_race_data')
         time.sleep(parse_wait)
         return get_race_data()
 
@@ -79,13 +76,12 @@ def get_last_pit_lap():
             pit_lap_info[result.get('no')] = team_dict
         return pit_lap_info
     except ET.ParseError:
-        print('parse error caught: get_last_pit_lap')
         time.sleep(parse_wait)
         return get_last_pit_lap()
 
 
 def parse_lap_times():
-    with open('CurrentLapTimes') as lap_times_csv:
+    with open('CurrentLapTimes.csv') as lap_times_csv:
         lap_times_obj = csv.reader(lap_times_csv)
         lap_times_dict = {}
         for row in lap_times_obj:

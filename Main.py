@@ -1,18 +1,50 @@
 import os
+import time
 
 from AbnormalLapCheck import start_abnormal_lap_check
 from DriverStintCheck import start_driver_stint_check
 from LeaderBoardFeed import start_leader_board_feed
 
 
-def lap_times_mod_time():
-    result = os.path.getmtime('TestLapTimes.csv')
-    return result
+def lap_times_mod_time(file_name, tries_count):
+    if tries_count > 5:
+        print('Cannot find file, please restart')
+        get_current_lap_times(is_restart())
+    try:
+        result = os.path.getmtime(file_name)
+        return result
+    except FileNotFoundError:
+        print('Waiting for {filename} export...'.format(filename=file_name))
+        tries_count += 1
+        time.sleep(2)
+        return lap_times_mod_time(file_name, tries_count)
 
 
-def start_monitors():
-    start_driver_stint_check(True)
+def start_monitors(restart):
+    print('Initiating Monitors')
+    start_driver_stint_check(restart)
     start_leader_board_feed()
     start_abnormal_lap_check()
-    #  how can I start all 3 of these threads, currently it hangs up of the first WT loop
+    #  how can I start all 3 of these threads, currently it hangs on the first WT loop
+
+
+def is_restart():
+    restart_input = input('Has the race started? Y/N: ')
+    if restart_input.upper() == 'Y':
+        return True
+    elif restart_input.upper() == 'N':
+        return False
+    else:
+        print('Invalid Input \nPlease enter either "Y" (Yes) or "N" (No)')
+        is_restart()
+
+
+def get_current_lap_times(restart):
+    file_name = input('Input LapTimes.csv file name w/ extension (Do not export yet!): ')
+    #  need to pass file_name to parse_lap_times
+    print('Export {filename} now'.format(filename=file_name))
+    if lap_times_mod_time(file_name, 0) - time.time() < 3:
+        start_monitors(restart)
+    else:
+        print("Something went wrong, please restart")
 

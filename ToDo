@@ -1,10 +1,10 @@
 Things To Do:
 
     Fixes:
+        - pass csv_name to parse_lap_times
         - Reset after drop_out goes back on track
         - Incorrect or skewed avg_lap_time
             > avg 2 avgs? pick the smaller avg?
         - Initiate more than 1 .py at a time
     Features:
         - Log file
-        - Start-up inputs
