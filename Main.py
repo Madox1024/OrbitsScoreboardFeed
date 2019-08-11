@@ -9,7 +9,7 @@ from LeaderBoardFeed import start_leader_board_feed
 def lap_times_mod_time(file_name, tries_count):
     if tries_count > 5:
         print('Cannot find file, please restart')
-        get_current_lap_times(is_restart())
+        start_race(is_restart())
     try:
         result = os.path.getmtime(file_name)
         return result
@@ -39,12 +39,25 @@ def is_restart():
         is_restart()
 
 
-def get_current_lap_times(restart):
-    file_name = input('Input LapTimes.csv file name w/ extension (Do not export yet!): ')
-    #  need to pass file_name to parse_lap_times
-    print('Export {filename} now'.format(filename=file_name))
-    if lap_times_mod_time(file_name, 0) - time.time() < 3:
-        start_monitors(restart)
-    else:
-        print("Something went wrong, please restart")
+csv_file_name = ''
 
+
+def ask_file_name():
+    global csv_file_name
+    csv_file_name = input('Input LapTimes.csv file name w/ extension (Do not export yet!): ')
+    return csv_file_name
+
+
+def start_race(restart):
+    if restart:
+        file_name = ask_file_name()
+        print('Export {filename} now'.format(filename=file_name))
+        if lap_times_mod_time(file_name, 0) - time.time() < 3:
+            start_monitors(restart)
+        else:
+            print("Something went wrong, please restart")
+    else:
+        start_monitors(restart)
+
+
+start_race((is_restart()))

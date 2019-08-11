@@ -31,7 +31,9 @@ class DriverStint:
         self.over_stint_triggered = False
 
     def stint_check(self, new_time):
-        if new_time - self.pit_time > 2*60*60*1000:  # milliseconds in 2 hours
+        if new_time - int(self.pit_time) > 2*60*60*1000:  # milliseconds in 2 hours
+            #  self.pit_time is converted to an integer in calc_millisec()
+            #  but getting Error: cannot subtract int and str, quick fix: int(self.pit_time)
             return True
         else:
             return False
