@@ -112,8 +112,9 @@ def start_abnormal_lap_check():
                 instantiate_team_lap_check()
                 print('Reinstantiating TeamLapCheck')
                 break
-            if get_leader_board()[driver.reg_num]['last_time'] != 'IN PIT' and get_leader_board()[driver.reg_num]['last_time'] != '':
-                new_lap_time = calc_millisec(get_leader_board()[driver.reg_num]['last_time'])
+            if leader_board[driver.reg_num]['last_time'] != 'IN PIT' and leader_board[driver.reg_num]['last_time'] != '':
+                new_lap_time = calc_millisec(leader_board[driver.reg_num]['last_time'])
                 driver.check_time(new_lap_time)
                 driver.refresh_info()
         time.sleep(refreshrate)
+start_abnormal_lap_check()
