@@ -1,6 +1,6 @@
 import time
 
-from Parser import get_last_pit_dict, get_stint_info
+from Parser import gen_last_pit_time, get_stint_info
 from Util import calc_millisec, fix_time, gen_time_stamp
 
 refresh_rate = 1
@@ -60,7 +60,7 @@ def instantiate_driver_stint():
 
 def instantiate_with_old_pit_times():
     driver_stint_dict = instantiate_driver_stint()
-    last_pit_dict = get_last_pit_dict()
+    last_pit_dict = gen_last_pit_time()
     for driver_key in driver_stint_dict:
         driver = driver_stint_dict[driver_key]
         if driver.car_num in last_pit_dict:
@@ -68,39 +68,40 @@ def instantiate_with_old_pit_times():
     return driver_stint_dict
 
 
-def start_driver_stint_check(restart):
+def start_dsc_instantiation(restart):
     if restart:
-        driver_stint_dict = instantiate_with_old_pit_times()
+        result = instantiate_with_old_pit_times()
     else:
-        driver_stint_dict = instantiate_driver_stint()
+        result = instantiate_driver_stint()
+    return result
 
-    while True:
 
-        stint_info = get_stint_info()
-        if len(driver_stint_dict) < len(stint_info):
-            new_driver = add_driver(driver_stint_dict, stint_info)
-            driver_stint_dict[new_driver.reg_num] = new_driver
-            print('Car {carnum} successfully added and is being monitored'.format(carnum=new_driver.car_num))
+def start_driver_stint_check(driver_stint_dict):
+    stint_info = get_stint_info()
+    if len(driver_stint_dict) < len(stint_info):
+        new_driver = add_driver(driver_stint_dict, stint_info)
+        driver_stint_dict[new_driver.reg_num] = new_driver
+        print('Car {carnum} successfully added and is being monitored'.format(carnum=new_driver.car_num))
 
-        for driver_key in driver_stint_dict:
-            driver = driver_stint_dict[driver_key]
-            if driver.reg_num not in stint_info:
-                missing_driver(driver.car_num)
-                break
+    for driver_key in driver_stint_dict:
+        driver = driver_stint_dict[driver_key]
+        if driver.reg_num not in stint_info:
+            missing_driver(driver.car_num)
+            break
 
-            new_driver_info = stint_info[driver.reg_num]
-            driver.last_time_line = new_driver_info['last_time_line']
-            new_lap_time = calc_millisec(new_driver_info['total_time'])
+        new_driver_info = stint_info[driver.reg_num]
+        driver.last_time_line = new_driver_info['last_time_line']
+        new_lap_time = calc_millisec(new_driver_info['total_time'])
 
-            if driver.last_time_line == "Start/Finish":
-                driver.in_pit = False
-                if driver.stint_check(new_lap_time) and not driver.over_stint_triggered:
-                    driver.over_stint()
-                    current_time_stamp = fix_time(stint_info[driver.reg_num]['total_time'])
-                    print('{carnum} is over their 2 hour driver stint at {time}'.format(carnum=driver.car_num,
-                                                                                        time=current_time_stamp))
+        if driver.last_time_line == "Start/Finish":
+            driver.in_pit = False
+            if driver.stint_check(new_lap_time) and not driver.over_stint_triggered:
+                driver.over_stint()
+                current_time_stamp = fix_time(stint_info[driver.reg_num]['total_time'])
+                print('{carnum} is over their 2 hour driver stint at {time}'.format(carnum=driver.car_num,
+                                                                                    time=current_time_stamp))
 
-            elif not driver.in_pit:
-                driver.pit_stop(new_driver_info['last_time_line'], new_lap_time)
-                print('Pit Stop: {carnum} at {time}'.format(carnum=driver.car_num, time=gen_time_stamp(new_lap_time)))
-        time.sleep(refresh_rate)
+        elif not driver.in_pit:
+            driver.pit_stop(new_driver_info['last_time_line'], new_lap_time)
+            print('Pit Stop: {carnum} at {time}'.format(carnum=driver.car_num, time=gen_time_stamp(new_lap_time)))
+    time.sleep(refresh_rate)

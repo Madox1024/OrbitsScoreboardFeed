@@ -15,7 +15,7 @@ class TeamLapCheck:
         self.initial_race_data = init_race_data
         self.initial_leader_board = init_leader_board
         self.car_num = self.initial_leader_board[reg_num]['car_num']
-        self.avg_lap_time = self.initial_leader_board[reg_num]['avg_lap_time']
+        self.best_lap_time = self.initial_leader_board[reg_num]['best_lap_time']
         self.last_time = self.initial_leader_board[reg_num]['last_time']
         self.total_time = self.initial_leader_board[reg_num]['total_time']
         self.race_time = self.initial_race_data['racetime']
@@ -25,7 +25,7 @@ class TeamLapCheck:
     def refresh_info(self):
         leader_board = get_leader_board()
         self.car_num = leader_board[self.reg_num]['car_num']
-        self.avg_lap_time = leader_board[self.reg_num]['avg_lap_time']
+        self.best_lap_time = leader_board[self.reg_num]['best_lap_time']
         self.last_time = leader_board[self.reg_num]['last_time']
         self.total_time = leader_board[self.reg_num]['total_time']
         self.race_time = get_race_data()['racetime']
@@ -53,7 +53,7 @@ class TeamLapCheck:
             return False
 
     def normal_lap_check(self):
-        abs_lap_diff = abs(calc_millisec(self.last_time) - calc_millisec(self.avg_lap_time))
+        abs_lap_diff = abs(calc_millisec(self.last_time) - calc_millisec(self.best_lap_time))
         if abs_lap_diff < 30 * 1000 and (not self.drop_out_triggered):  # 30 secs
             # will not reset after drop_out, figure out a way to reset after dropout
             return True
@@ -62,11 +62,11 @@ class TeamLapCheck:
 
     def check_time(self, last_time):
         self.refresh_info()
-        avg_time_ms = calc_millisec(self.avg_lap_time)
-        is_1min_over = avg_time_ms <= (last_time - 60000)
-        is_over_double = avg_time_ms * 2 <= last_time
-        not_triggered = not self.msg_triggered and not self.drop_out_triggered
-        if is_1min_over and (not is_over_double) and not_triggered:
+        best_time_ms = calc_millisec(self.best_lap_time)
+        is_30sec_over = best_time_ms <= (last_time - (30 * 1000))
+        is_over_double = best_time_ms * 2 <= last_time
+        not_triggered = (not self.msg_triggered) and (not self.drop_out_triggered)
+        if is_30sec_over and (not is_over_double) and not_triggered:
             self.long_lap()
             print('Car {carnum} has a long lap at {time}'.format(carnum=self.car_num, time=self.total_time))
         elif is_over_double and not_triggered:
@@ -96,24 +96,20 @@ def add_driver(driver_dict, leader_board):
             return new_team_obj
 
 
-def start_abnormal_lap_check():
-    team_obj_dict = instantiate_team_lap_check()
-    while True:
+def start_abnormal_lap_check(team_obj_dict):
+    leader_board = get_leader_board()
+    if len(team_obj_dict) < len(leader_board):
+        new_driver = add_driver(team_obj_dict, leader_board)
+        team_obj_dict[new_driver.reg_num] = new_driver
+        print('add driver triggered')
 
-        leader_board = get_leader_board()
-        if len(team_obj_dict) < len(leader_board):
-            new_driver = add_driver(team_obj_dict, leader_board)
-            team_obj_dict[new_driver.reg_num] = new_driver
-            print('add driver triggered')
-
-        for driver_key in team_obj_dict:
-            driver = team_obj_dict[driver_key]
-            if driver.reg_num not in leader_board:
-                instantiate_team_lap_check()
-                print('Reinstantiating TeamLapCheck')
-                break
-            if leader_board[driver.reg_num]['last_time'] != 'IN PIT' and leader_board[driver.reg_num]['last_time'] != '':
-                new_lap_time = calc_millisec(leader_board[driver.reg_num]['last_time'])
-                driver.check_time(new_lap_time)
-                driver.refresh_info()
-        time.sleep(refreshrate)
+    for driver_key in team_obj_dict:
+        driver = team_obj_dict[driver_key]
+        if driver.reg_num not in leader_board:
+            instantiate_team_lap_check()
+            print('Reinstantiating TeamLapCheck')
+            break
+        if leader_board[driver.reg_num]['last_time'] != 'IN PIT' and leader_board[driver.reg_num]['last_time'] != '':
+            new_lap_time = calc_millisec(leader_board[driver.reg_num]['last_time'])
+            driver.check_time(new_lap_time)
+    time.sleep(refreshrate)

@@ -1,31 +1,34 @@
 import os
 import time
 
-from AbnormalLapCheck import start_abnormal_lap_check
-from DriverStintCheck import start_driver_stint_check
-from LeaderBoardFeed import start_leader_board_feed
+from AbnormalLapCheck import start_abnormal_lap_check, instantiate_team_lap_check
+from DriverStintCheck import start_driver_stint_check, start_dsc_instantiation
 
 
 def lap_times_mod_time(file_name, tries_count):
-    if tries_count > 5:
-        print('Cannot find file, please restart')
+    if tries_count > 30:
+        print('Cannot find file, please make sure that the file is named exactly "CurrentPassings.csv" \nRestarting')
         start_race(is_restart())
     try:
         result = os.path.getmtime(file_name)
         return result
     except FileNotFoundError:
-        print('Waiting for {filename} export...'.format(filename=file_name))
+        if tries_count % 5 == 0:
+            print('Waiting for {filename} export...'.format(filename=file_name))
         tries_count += 1
         time.sleep(2)
         return lap_times_mod_time(file_name, tries_count)
 
 
 def start_monitors(restart):
+    print('Populating Driver Info')
+    driver_stint_dict = start_dsc_instantiation(restart)
+    abnormal_lap_dict = instantiate_team_lap_check()
     print('Initiating Monitors')
-    start_driver_stint_check(restart)
-    start_leader_board_feed()
-    start_abnormal_lap_check()
-    #  how can I start all 3 of these threads, currently it hangs on the first WT loop
+    while True:
+        start_driver_stint_check(driver_stint_dict)
+        start_abnormal_lap_check(abnormal_lap_dict)
+        #  add leaderboard feed
 
 
 def is_restart():
@@ -36,26 +39,24 @@ def is_restart():
         return False
     else:
         print('Invalid Input \nPlease enter either "Y" (Yes) or "N" (No)')
-        is_restart()
-
-
-csv_file_name = ''
-
-
-def ask_file_name():
-    global csv_file_name
-    csv_file_name = input('Input LapTimes.csv file name w/ extension (Do not export yet!): ')
-    return csv_file_name
+        return is_restart()
 
 
 def start_race(restart):
     if restart:
-        file_name = ask_file_name()
-        print('Export {filename} now'.format(filename=file_name))
-        if lap_times_mod_time(file_name, 0) - time.time() < 3:
+        file_name = 'CurrentPassings.csv'
+        print('Please export a passings csv and name it EXACTLY: "{filename}"'.format(filename=file_name))
+        time.sleep(2)
+        print('You have 1 Minute'.format(filename=file_name))
+        if abs(lap_times_mod_time(file_name, 0) - time.time()) < 3:
+            print('Export Found!')
+            time.sleep(1)
             start_monitors(restart)
         else:
-            print("Something went wrong, please restart")
+            print("{filename} is too old. Deleting {filename}, wait for prompt to export".format(filename=file_name))
+            os.remove(file_name)
+            print('Restarting Program')
+            start_race((is_restart()))
     else:
         start_monitors(restart)
 

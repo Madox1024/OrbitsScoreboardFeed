@@ -1,4 +1,5 @@
 import csv
+import statistics
 import time
 import xml.etree.ElementTree as ET
 
@@ -38,7 +39,7 @@ def get_leader_board():
                 'car_num': result.get('no'),
                 'position': result.get('position'),
                 'team_name': result.get('firstname'),
-                'avg_lap_time': result.get('averagetime'),
+                'best_lap_time': result.get('besttime'),
                 'last_time': result.get('lasttime'),
                 'total_time': result.get('totaltime')
                 # add more fields
@@ -64,64 +65,31 @@ def get_race_data():
         return get_race_data()
 
 
-def get_last_pit_lap():
-    try:
-        pit_lap_tree = ET.parse(xml)
-        pit_lap_root = pit_lap_tree.getroot()
-        pit_lap_info = {}
-        for result in pit_lap_root.iter('result'):
-            team_dict = {
-                'last_pit_lap': result.get('lastpitstop')
-            }
-            pit_lap_info[result.get('no')] = team_dict
-        return pit_lap_info
-    except ET.ParseError:
-        time.sleep(parse_wait)
-        return get_last_pit_lap()
+def gen_last_pit_time():
+    with open('CurrentPassings.csv') as passings_csv:
+        passings_obj = csv.reader(passings_csv)
+        passings_dict = {}
+        for passing in passings_obj:
+            if 'P' in passing[3]:
+                if passing[1] in passings_dict:
+                    if passings_dict[passing[1]] < calc_millisec(passing[7]):
+                        passings_dict[passing[1]] = calc_millisec(passing[7])
+                elif passing[1] != '':
+                    passings_dict[passing[1]] = {}
+                    passings_dict[passing[1]] = calc_millisec(passing[7])
+    return passings_dict
 
 
-def parse_lap_times():
-    with open('CurrentLapTimes.csv') as lap_times_csv:
-        lap_times_obj = csv.reader(lap_times_csv)
-        lap_times_dict = {}
-        for row in lap_times_obj:
-            if len(row[0]) > 10:
-                car_number_stripped = row[0][:3].strip()
-                car_number = car_number_stripped.strip(" -")
+def normalized_avg_laptime():
+    with open('CurrentPassings.csv') as passings_csv:
+        passings_obj = csv.reader(passings_csv)
+        normal_avg_dict = {}
+        for passing in passings_obj:
+            if passing[1] in normal_avg_dict:
+                normal_avg_dict[passing[1]].append(passing[5])
+            elif passing[1] != '':
+                normal_avg_dict[passing[1]] = []
+                normal_avg_dict[passing[1]].append(passing[5])
+        for team in normal_avg_dict:
+            normal_avg_dict[team] = statistics.mean(normal_avg_dict[team])
 
-            elif row[-1] != 'Speed':
-                if car_number in lap_times_dict:
-                    lap_times_dict[car_number][row[1]] = row[0]
-                else:
-                    lap_times_dict[car_number] = {}
-                    lap_times_dict[car_number][row[1]] = row[0]
-    return lap_times_dict
-
-
-def get_last_pit_dict():
-    race_data = get_race_data()
-    last_pit_lap = get_last_pit_lap()
-    lap_times = parse_lap_times()
-
-    current_time = calc_millisec(race_data['timeofday'])  # must add '.000' b/c race_data doesn't include ms
-    race_time = calc_millisec(race_data['racetime'])
-    race_time_diff = abs(current_time - race_time)
-
-    last_pit_laps = {}
-    for team in last_pit_lap:
-        last_pit_laps[team] = last_pit_lap[team]['last_pit_lap']  # populating last_pit_laps w/ {car_num: lastpitlap #}
-
-    team_last_pit_dict = {}
-    for car in last_pit_laps:
-        if car not in lap_times:
-            team_last_pit_dict[car] = "0"  # LapTimes.csv drops cars w/ no passings, must avoid key error
-
-        elif current_time >= race_time:
-            last_pit_tod = calc_millisec(lap_times[car][last_pit_laps[car]])  # fetching respective lap times
-            team_last_pit_dict[car] = last_pit_tod - race_time_diff           # using car number and selecting last pit
-
-        else:
-            last_pit_tod = calc_millisec(lap_times[car][last_pit_laps[car]])  # this accounts for races that
-            team_last_pit_dict[car] = last_pit_tod + race_time_diff                  # run past 23:59:59 (TOD)
-
-    return team_last_pit_dict
