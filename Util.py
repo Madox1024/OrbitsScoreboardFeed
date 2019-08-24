@@ -1,13 +1,17 @@
 
 
 def calc_millisec(time_stamp):
-    time_stamp_ms = fix_time(time_stamp)
-    millisec = int(time_stamp_ms[-3:])
-    seconds = int(time_stamp_ms[-6:-4]) * 1000
-    minutes = int(time_stamp_ms[-9:-7]) * (60 * 1000)
-    hours = int(time_stamp_ms[-12:-10]) * ((60 * 1000) * 60)
-    total_ms = millisec + seconds + minutes + hours
-    return total_ms
+    try:
+        time_stamp_ms = fix_time(time_stamp)
+        millisec = int(time_stamp_ms[-3:])
+        seconds = int(time_stamp_ms[-6:-4]) * 1000
+        minutes = int(time_stamp_ms[-9:-7]) * (60 * 1000)
+        hours = int(time_stamp_ms[-12:-10]) * ((60 * 1000) * 60)
+        total_ms = millisec + seconds + minutes + hours
+        return total_ms
+    except ValueError:
+        print('Value Error: "{timestamp}"'.format(timestamp=time_stamp))
+        return time_stamp
 
 
 def gen_time_stamp(milliseconds):

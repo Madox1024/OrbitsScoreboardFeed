@@ -1,8 +1,18 @@
 Things To Do:
 
     Fixes:
-        - Reset after drop_out goes back on track
+        - abnormal lap checks disabled for pitpassing and + 1 lap (fix not working)
+            > why does it skip long pit laps but not long laps after pit?
+        - Reset after drop_out goes back on track (fix not working)
         - Combine DriverStintCheck and AbnormlLapCheck (One Object)
+        - long laps on yellow flag
+        - AbnormalLapCheck -> check_time()
+            > self.last_time can resolve to "IN PIT" and not a timestamp. Error safe for now but maybe
+                think of a better way to handle it... also WTF Orbits?!?!
     Features:
         - Log file
         - check for TX passings < 10 ms apart (wrongly assigned tx)
+        - UI?
+
+    Done:
+        - Double pit stops aren't being recorded

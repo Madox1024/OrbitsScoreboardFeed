@@ -21,10 +21,12 @@ def lap_times_mod_time(file_name, tries_count):
 
 
 def start_monitors(restart):
-    print('Populating Driver Info')
+    driver_info_msg = 'Populating Driver Info'
+    print(driver_info_msg)
     driver_stint_dict = start_dsc_instantiation(restart)
     abnormal_lap_dict = instantiate_team_lap_check()
-    print('Initiating Monitors')
+    initiating_monitors = 'Initiating Monitors {timestamp}'.format(timestamp=time.ctime(time.time()))
+    print(initiating_monitors)
     while True:
         start_driver_stint_check(driver_stint_dict)
         start_abnormal_lap_check(abnormal_lap_dict)
@@ -49,14 +51,14 @@ def start_race(restart):
         time.sleep(2)
         print('You have 1 Minute'.format(filename=file_name))
         if abs(lap_times_mod_time(file_name, 0) - time.time()) < 3:
-            print('Export Found!')
-            time.sleep(1)
+            export_found = 'Export Found!'
+            print(export_found)
+            time.sleep(2)
             start_monitors(restart)
         else:
             print("{filename} is too old. Deleting {filename}, wait for prompt to export".format(filename=file_name))
             os.remove(file_name)
-            print('Restarting Program')
-            start_race((is_restart()))
+            start_race(restart)
     else:
         start_monitors(restart)
 

@@ -41,9 +41,14 @@ def get_leader_board():
                 'team_name': result.get('firstname'),
                 'best_lap_time': result.get('besttime'),
                 'last_time': result.get('lasttime'),
-                'total_time': result.get('totaltime')
+                'total_time': result.get('totaltime'),
+                'last_pit_stop': result.get('lastpitstop')
                 # add more fields
             }
+            if result.get('laps') == '':
+                team_dict['laps'] = 0
+            else:
+                team_dict['laps'] = result.get('laps')
             leader_board[result.get('regnumber')] = team_dict
         return leader_board
     except ET.ParseError:
@@ -66,22 +71,27 @@ def get_race_data():
 
 
 def gen_last_pit_time():
-    with open('CurrentPassings.csv') as passings_csv:
+    with open('CurrentPassings.csv', 'r') as passings_csv:
         passings_obj = csv.reader(passings_csv)
         passings_dict = {}
         for passing in passings_obj:
-            if 'P' in passing[3]:
-                if passing[1] in passings_dict:
-                    if passings_dict[passing[1]] < calc_millisec(passing[7]):
+            try:
+                if 'P' in passing[3]:
+                    if passing[1] in passings_dict:
+                        if passings_dict[passing[1]] < calc_millisec(passing[7]):
+                            passings_dict[passing[1]] = calc_millisec(passing[7])
+                    elif passing[1] != '':
+                        passings_dict[passing[1]] = {}
                         passings_dict[passing[1]] = calc_millisec(passing[7])
-                elif passing[1] != '':
-                    passings_dict[passing[1]] = {}
-                    passings_dict[passing[1]] = calc_millisec(passing[7])
-    return passings_dict
+            except IndexError:
+                print('Index Error, trying again')
+                time.sleep(1)
+                return gen_last_pit_time()
+            return passings_dict
 
 
 def normalized_avg_laptime():
-    with open('CurrentPassings.csv') as passings_csv:
+    with open('CurrentPassings.csv', 'r') as passings_csv:
         passings_obj = csv.reader(passings_csv)
         normal_avg_dict = {}
         for passing in passings_obj:
@@ -92,4 +102,3 @@ def normalized_avg_laptime():
                 normal_avg_dict[passing[1]].append(passing[5])
         for team in normal_avg_dict:
             normal_avg_dict[team] = statistics.mean(normal_avg_dict[team])
-
