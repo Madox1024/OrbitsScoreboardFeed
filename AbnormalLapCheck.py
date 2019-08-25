@@ -1,7 +1,7 @@
 import time
 
 from Parser import get_leader_board, get_race_data
-from Util import calc_millisec
+from Util import calc_millisec, log
 
 # WIP
 
@@ -19,8 +19,8 @@ class TeamLapCheck:
         self.last_time = self.initial_leader_board[reg_num]['last_time']
         self.total_time = self.initial_leader_board[reg_num]['total_time']
         self.race_time = self.initial_race_data['racetime']
-        self.lap_count = int(self.initial_leader_board[reg_num]['laps'])
-        self.last_pit_lap = int(self.initial_leader_board[reg_num]['last_pit_stop'])
+        self.flag = self.initial_race_data['flag']
+        self.laps_since_pit = int(self.initial_leader_board[reg_num]['since_pit'])
         self.msg_triggered = False
         self.drop_out_triggered = False
 
@@ -58,7 +58,7 @@ class TeamLapCheck:
         if self.last_time != 'IN PIT' and self.last_time != '':
             abs_lap_diff = abs(calc_millisec(self.last_time) - calc_millisec(self.best_lap_time))
         else:
-            print('Car {carnum} \n  Resetting lap state'.format(carnum=self.car_num))
+            log('Car {carnum} \n  Resetting lap state'.format(carnum=self.car_num))
             abs_lap_diff = 0
         if abs_lap_diff < 30 * 1000 and (not self.drop_out_triggered):
             # will not reset after drop_out, figure out a way to reset after dropout
@@ -73,19 +73,19 @@ class TeamLapCheck:
         is_over_double = (best_time_ms * 2) <= last_time < (best_time_ms * 3)
         not_triggered = (not self.msg_triggered) and (not self.drop_out_triggered)
 
-        if (self.lap_count - self.last_pit_lap) >= 1:  # Change to use Since_Pit
+        if self.laps_since_pit > 2:  # this is to avoid long pit-out laps
 
             if is_1min_over and (not is_over_double) and not_triggered:
                 self.long_lap()
-                print('Car {carnum} has a long lap at {time}'.format(carnum=self.car_num, time=self.total_time))
+                log('Car {carnum} has a long lap at {time}'.format(carnum=self.car_num, time=self.total_time))
             elif is_over_double and not_triggered:
                 self.over_double_lap()
-                print('Car {carnum} might have missed a lap at {time}'.format(carnum=self.car_num, time=self.total_time))
+                log('Car {carnum} might have missed a lap at {time}'.format(carnum=self.car_num, time=self.total_time))
 
         elif self.drop_out_check() and not_triggered:
             self.drop_out()
-            print('Car {carnum} is not hitting, last crossing at {time}'.format(carnum=self.car_num,
-                                                                                time=self.total_time))
+            log('Car {carnum} is not hitting, last crossing at {time}'.format(carnum=self.car_num,
+                                                                              time=self.total_time))
         elif self.normal_lap_check():
             self.normal_lap()
 
@@ -111,13 +111,13 @@ def start_abnormal_lap_check(team_obj_dict):
     if len(team_obj_dict) < len(leader_board):
         new_driver = add_driver(team_obj_dict, leader_board)
         team_obj_dict[new_driver.reg_num] = new_driver
-        print('Add driver triggered')
+        log('Add driver triggered')
 
     for driver_key in team_obj_dict:
         driver = team_obj_dict[driver_key]
         if driver.reg_num not in leader_board:
             instantiate_team_lap_check()
-            print('Reinstantiating TeamLapCheck')
+            log('Reinstantiating TeamLapCheck')
             break
         if leader_board[driver.reg_num]['last_time'] != 'IN PIT' and leader_board[driver.reg_num]['last_time'] != '':
             new_lap_time = calc_millisec(leader_board[driver.reg_num]['last_time'])

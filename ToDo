@@ -11,6 +11,7 @@ Things To Do:
                 think of a better way to handle it... also WTF Orbits?!?!
     Features:
         - Log file
+            > log(string) in util
         - check for TX passings < 10 ms apart (wrongly assigned tx)
         - UI?
 

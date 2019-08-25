@@ -1,3 +1,4 @@
+import time
 
 
 def calc_millisec(time_stamp):
@@ -10,7 +11,7 @@ def calc_millisec(time_stamp):
         total_ms = millisec + seconds + minutes + hours
         return total_ms
     except ValueError:
-        print('Value Error: "{timestamp}"'.format(timestamp=time_stamp))
+        log('Value Error: "{timestamp}"'.format(timestamp=time_stamp))
         return time_stamp
 
 
@@ -37,3 +38,12 @@ def fix_time(t):
         else:
             result = t
     return result
+
+
+def log(message):
+    time_stamp = (time.ctime(time.time()))
+    file_name = time_stamp[:-13] + ' Log File.txt'
+    with open(file_name, 'a+') as log_file:
+        fixed_stamp = message + ' ' + time_stamp
+        log_file.write(fixed_stamp + '\n')
+        print(fixed_stamp)

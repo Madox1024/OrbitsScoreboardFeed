@@ -3,7 +3,7 @@ import statistics
 import time
 import xml.etree.ElementTree as ET
 
-from Util import calc_millisec
+from Util import calc_millisec, log
 
 xml = 'current.xml'  # use 'current.xml' not results
 parse_wait = 0.1  # seconds
@@ -41,14 +41,13 @@ def get_leader_board():
                 'team_name': result.get('firstname'),
                 'best_lap_time': result.get('besttime'),
                 'last_time': result.get('lasttime'),
-                'total_time': result.get('totaltime'),
-                'last_pit_stop': result.get('lastpitstop')
+                'total_time': result.get('totaltime')
                 # add more fields
             }
-            if result.get('laps') == '':
-                team_dict['laps'] = 0
+            if result.get('sincepit') == '':
+                team_dict['since_pit'] = 0
             else:
-                team_dict['laps'] = result.get('laps')
+                team_dict['since_pit'] = result.get('sincepit')
             leader_board[result.get('regnumber')] = team_dict
         return leader_board
     except ET.ParseError:
@@ -81,13 +80,12 @@ def gen_last_pit_time():
                         if passings_dict[passing[1]] < calc_millisec(passing[7]):
                             passings_dict[passing[1]] = calc_millisec(passing[7])
                     elif passing[1] != '':
-                        passings_dict[passing[1]] = {}
                         passings_dict[passing[1]] = calc_millisec(passing[7])
             except IndexError:
-                print('Index Error, trying again')
+                log('Index Error, trying again')
                 time.sleep(1)
                 return gen_last_pit_time()
-            return passings_dict
+        return passings_dict
 
 
 def normalized_avg_laptime():
