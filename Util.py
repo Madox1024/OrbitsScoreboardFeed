@@ -11,7 +11,6 @@ def calc_millisec(time_stamp):
         total_ms = millisec + seconds + minutes + hours
         return total_ms
     except ValueError:
-        log('Value Error: "{timestamp}"'.format(timestamp=time_stamp))
         return time_stamp
 
 
@@ -46,4 +45,4 @@ def log(message):
     with open(file_name, 'a+') as log_file:
         fixed_stamp = message + ' ' + time_stamp
         log_file.write(fixed_stamp + '\n')
-        print(fixed_stamp)
+        print(message)

@@ -68,26 +68,33 @@ class TeamLapCheck:
 
     def check_time(self, last_time):
         self.refresh_info()
-        best_time_ms = calc_millisec(self.best_lap_time)
-        is_1min_over = best_time_ms <= (last_time - (60 * 1000))
-        is_over_double = (best_time_ms * 2) <= last_time < (best_time_ms * 3)
-        not_triggered = (not self.msg_triggered) and (not self.drop_out_triggered)
+        if (self.flag != 'yellow') and (last_time != 'IN PIT'):
+            if self.laps_since_pit != 1:
 
-        if self.laps_since_pit > 2:  # this is to avoid long pit-out laps
+                best_time_ms = calc_millisec(self.best_lap_time)
+                is_1min_over = best_time_ms <= (last_time - (60 * 1000))
+                is_over_double = (best_time_ms * 2) <= last_time < (best_time_ms * 3)
+                not_triggered = (not self.msg_triggered) and (not self.drop_out_triggered)
 
-            if is_1min_over and (not is_over_double) and not_triggered:
-                self.long_lap()
-                log('Car {carnum} has a long lap at {time}'.format(carnum=self.car_num, time=self.total_time))
-            elif is_over_double and not_triggered:
-                self.over_double_lap()
-                log('Car {carnum} might have missed a lap at {time}'.format(carnum=self.car_num, time=self.total_time))
+                if is_1min_over and (not is_over_double) and not_triggered:
+                    self.long_lap()
+                    log('Car {carnum} has a long lap at {time}'.format(carnum=self.car_num, time=self.total_time))
 
-        elif self.drop_out_check() and not_triggered:
-            self.drop_out()
-            log('Car {carnum} is not hitting, last crossing at {time}'.format(carnum=self.car_num,
-                                                                              time=self.total_time))
-        elif self.normal_lap_check():
-            self.normal_lap()
+                elif is_over_double and not_triggered:
+                    self.over_double_lap()
+                    log('Car {carnum} might have missed a lap at {time}'.format(carnum=self.car_num,
+                                                                                time=self.total_time))
+
+                elif self.drop_out_check() and not_triggered:
+                    self.drop_out()
+                    log('Car {carnum} is not hitting, last crossing at {time}'.format(carnum=self.car_num,
+                                                                                      time=self.total_time))
+                elif self.normal_lap_check():
+                    self.normal_lap()
+            elif not self.msg_triggered:
+                log('Cannot resolve {carnum} last lap time: "{lasttime}"'.format(carnum=self.car_num,
+                                                                                 lasttime=last_time))
+                self.msg_triggered = True
 
 
 def instantiate_team_lap_check():
@@ -119,7 +126,7 @@ def start_abnormal_lap_check(team_obj_dict):
             instantiate_team_lap_check()
             log('Reinstantiating TeamLapCheck')
             break
-        if leader_board[driver.reg_num]['last_time'] != 'IN PIT' and leader_board[driver.reg_num]['last_time'] != '':
+        if leader_board[driver.reg_num]['last_time'] != '':
             new_lap_time = calc_millisec(leader_board[driver.reg_num]['last_time'])
             driver.check_time(new_lap_time)
     time.sleep(refreshrate)
