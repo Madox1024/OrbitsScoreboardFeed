@@ -1,9 +1,9 @@
 import time
 
 from Parser import gen_last_pit_time, get_stint_info
-from Util import calc_millisec, fix_time, gen_time_stamp, log
+from Util import calc_millisec, fix_time, gen_time_stamp, log_print, log_only
 
-refresh_rate = 1
+refresh_rate = .5
 
 
 class DriverStint:
@@ -31,7 +31,7 @@ class DriverStint:
 
     def stint_check(self, new_time):
         if new_time - int(self.pit_time) > 2*60*60*1000:  # milliseconds in 2 hours
-            #  self.pit_time is converted to an integer in calc_millisec()
+            #  self.pit_time should be converted to an integer in calc_millisec()
             #  but getting Error: cannot subtract int and str, quick fix: int(self.pit_time)
             return True
         else:
@@ -39,7 +39,7 @@ class DriverStint:
 
 
 def missing_driver(car_num):
-    log('Car {carnum} is missing from the scoreboard feed and is no longer being monitored!'.format(carnum=car_num))
+    log_print('Car {carnum} is missing from the scoreboard feed and is no longer being monitored!'.format(carnum=car_num))
 
 
 def add_driver(driver_dict, stint_info):
@@ -65,10 +65,10 @@ def instantiate_with_old_pit_times():
         if driver.car_num in last_pit_dict:
             old_pit_time = last_pit_dict[driver.car_num]
             driver.refresh_pit(old_pit_time)
-            log('{carnum} imported pit stop at: {timestamp}'.format(carnum=driver.car_num,
-                                                                    timestamp=gen_time_stamp(old_pit_time)))
+            log_only('{carnum} imported pit stop at: {timestamp}'.format(carnum=driver.car_num,
+                                                                         timestamp=gen_time_stamp(old_pit_time)))
         else:
-            log('{carnum} no pit time'.format(carnum=driver.car_num))
+            log_only('{carnum} no pit time'.format(carnum=driver.car_num))
     return driver_stint_dict
 
 
@@ -85,7 +85,7 @@ def start_driver_stint_check(driver_stint_dict):
     if len(driver_stint_dict) < len(stint_info):
         new_driver = add_driver(driver_stint_dict, stint_info)
         driver_stint_dict[new_driver.reg_num] = new_driver
-        log('Car {carnum} successfully added and is being monitored'.format(carnum=new_driver.car_num))
+        log_print('{carnum} added to Stint-Checker'.format(carnum=new_driver.car_num))
 
     for driver_key in driver_stint_dict:
         driver = driver_stint_dict[driver_key]
@@ -102,12 +102,12 @@ def start_driver_stint_check(driver_stint_dict):
             if driver.stint_check(new_lap_time) and not driver.over_stint_triggered:
                 driver.over_stint()
                 current_time_stamp = fix_time(stint_info[driver.reg_num]['total_time'])
-                log('{carnum} is over their 2 hour driver stint at {time}'.format(carnum=driver.car_num,
-                                                                                    time=current_time_stamp))
+                log_print('{carnum} is nearing their 2 hour driver stint at {time}'.format(carnum=driver.car_num,
+                                                                                           time=current_time_stamp))
 
         else:
             driver.pit_stop(new_driver_info['last_time_line'], new_lap_time)
             if not driver.pit_msg_sent:
-                log('Pit Stop: {carnum} at {time}'.format(carnum=driver.car_num, time=new_driver_info['total_time']))
+                log_only('Pit Stop: {carnum} at {time}'.format(carnum=driver.car_num, time=new_driver_info['total_time']))
                 driver.pit_msg_sent = True
     time.sleep(refresh_rate)

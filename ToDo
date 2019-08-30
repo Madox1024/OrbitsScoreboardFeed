@@ -1,18 +1,27 @@
 Things To Do:
 
     Fixes:
-        - long laps on yellow flag (use self.flag)
-        - Double pit stops aren't being logged (Driver obj will be updated every cycle but log() only called after
-            S/F lap)
-        - Reset after drop_out goes back on track (need to test)
-        - AbnormalLapCheck -> check_time()
-            > self.last_time can resolve to "IN PIT" and not a timestamp. Error safe for now but maybe
-                think of a better way to handle it... also WTF Orbits?!?!
+        - Limit Resource workload by adding lap# checking against last lap#, only trigger when lap# changes
+        - Reset after drop_out goes back on track *Possibly Fixed*
+
+
     Features:
         - check for TX passings < 10 ms apart (wrongly assigned tx)
         - UI?
 
+
     Done:
         - abnormal lap checks disabled for pitpassing and + 1 lap (if since_pit > 2: *check laps*)
+
         - Log file
             > log(string) in Util.py
+
+        - long laps on not-green flag (use self.flag) NEED TO TEST
+
+        - AbnormalLapCheck -> check_time()
+            > self.last_time can resolve to "IN PIT" and not a timestamp. Error safe for now but maybe
+                think of a better way to handle it... also WTF Orbits?!?!
+            > *** Fixed - added if to catch '' and 'IN PIT' to start_abnormal_lap_check() ***
+
+        - Double pit stops aren't being logged
+            > *** Fixed - pit stops will be monitored but not logged ***

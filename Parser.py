@@ -3,7 +3,7 @@ import statistics
 import time
 import xml.etree.ElementTree as ET
 
-from Util import calc_millisec, log
+from Util import calc_millisec, log_print, log_only
 
 xml = 'current.xml'  # use 'current.xml' not results
 parse_wait = 0.1  # seconds
@@ -82,21 +82,7 @@ def gen_last_pit_time():
                     elif passing[1] != '':
                         passings_dict[passing[1]] = calc_millisec(passing[7])
             except IndexError:
-                log('Index Error, trying again')
+                log_only('Index Error while parsing passings.csv')
                 time.sleep(1)
                 return gen_last_pit_time()
         return passings_dict
-
-
-def normalized_avg_laptime():
-    with open('CurrentPassings.csv', 'r') as passings_csv:
-        passings_obj = csv.reader(passings_csv)
-        normal_avg_dict = {}
-        for passing in passings_obj:
-            if passing[1] in normal_avg_dict:
-                normal_avg_dict[passing[1]].append(passing[5])
-            elif passing[1] != '':
-                normal_avg_dict[passing[1]] = []
-                normal_avg_dict[passing[1]].append(passing[5])
-        for team in normal_avg_dict:
-            normal_avg_dict[team] = statistics.mean(normal_avg_dict[team])
