@@ -32,14 +32,16 @@ class DriverStint:
     def stint_check(self, new_time):
         if new_time - int(self.pit_time) > 2*60*60*1000:  # milliseconds in 2 hours
             #  self.pit_time should be converted to an integer in calc_millisec()
-            #  but getting Error: cannot subtract int and str, quick fix: int(self.pit_time)
+            #  but getting Error: cannot subtract int and str, -> quick fix: int(self.pit_time)
             return True
         else:
             return False
 
 
 def missing_driver(car_num):
-    log_print('Car {carnum} is missing from the scoreboard feed and is no longer being monitored!'.format(carnum=car_num))
+    log_print(
+        'Car {carnum} is missing from the scoreboard feed and is no longer being monitored!'.format(carnum=car_num)
+    )
 
 
 def add_driver(driver_dict, stint_info):
@@ -108,6 +110,7 @@ def start_driver_stint_check(driver_stint_dict):
         else:
             driver.pit_stop(new_driver_info['last_time_line'], new_lap_time)
             if not driver.pit_msg_sent:
-                log_only('Pit Stop: {carnum} at {time}'.format(carnum=driver.car_num, time=new_driver_info['total_time']))
+                log_only('Pit Stop: {carnum} at {time}'.format(carnum=driver.car_num,
+                                                               time=new_driver_info['total_time']))
                 driver.pit_msg_sent = True
     time.sleep(refresh_rate)

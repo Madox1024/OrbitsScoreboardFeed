@@ -26,12 +26,13 @@ class TeamLapCheck:
 
     def refresh_info(self):
         leader_board = get_leader_board()
+        race_data = get_race_data()
         self.car_num = leader_board[self.reg_num]['car_num']
         self.best_lap_time = leader_board[self.reg_num]['best_lap_time']
         self.last_time = leader_board[self.reg_num]['last_time']
         self.total_time = leader_board[self.reg_num]['total_time']
-        self.race_time = get_race_data()['racetime']
-        self.flag = self.initial_race_data['flag']
+        self.race_time = race_data['racetime']
+        self.flag = race_data['flag']
         self.laps_since_pit = int(leader_board[self.reg_num]['since_pit'])
 
     def message_trigger(self):
@@ -65,10 +66,12 @@ class TeamLapCheck:
 
     def check_time(self, last_time):
 
+        self.flag = get_race_data()['flag']  # refresh to current flag status
+
         if self.flag == 'green':  # ignore abnormal laps when not green
 
             self.refresh_info()
-            not_out_lap = self.laps_since_pit != 1
+            not_out_lap = self.laps_since_pit > 1  # only checks laps after pit out lap
 
             if not_out_lap:
 

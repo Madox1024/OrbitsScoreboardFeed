@@ -1,12 +1,11 @@
 import csv
-import statistics
 import time
 import xml.etree.ElementTree as ET
 
-from Util import calc_millisec, log_print, log_only
+from Util import calc_millisec, log_only
 
 xml = 'current.xml'  # use 'current.xml' not results
-parse_wait = 0.1  # seconds
+parse_wait = 0.3  # seconds
 
 
 def get_stint_info():
@@ -25,6 +24,7 @@ def get_stint_info():
             stint_info[result.get('regnumber')] = team_dict
         return stint_info
     except ET.ParseError:
+        log_only('get_stint_info ParseError')
         time.sleep(parse_wait)
         return get_stint_info()
 
@@ -51,6 +51,7 @@ def get_leader_board():
             leader_board[result.get('regnumber')] = team_dict
         return leader_board
     except ET.ParseError:
+        log_only('get_leader_board ParseError')
         time.sleep(parse_wait)
         return get_leader_board()
 
@@ -65,6 +66,7 @@ def get_race_data():
             race_data[label.get('type')] = label.text
         return race_data
     except ET.ParseError:
+        log_only('get_race_data ParseError')
         time.sleep(parse_wait)
         return get_race_data()
 

@@ -44,8 +44,8 @@ def log_print(message):
     time_stamp = (time.ctime(time.time()))
     file_name = time_stamp[:-13] + ' Log File.txt'
     with open(file_name, 'a+') as log_file:
-        fixed_stamp = message + ' ' + time_stamp
-        log_file.write(fixed_stamp + '\n')
+        log_message = message + ' ' + time_stamp
+        log_file.write(log_message + '\n')
         print(message)
 
 

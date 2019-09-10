@@ -1,11 +1,15 @@
 Things To Do:
 
     Fixes:
+        - Why is it Freezing after dropouts?
         - Limit Resource workload by adding lap# checking against last lap#, only trigger when lap# changes
         - Reset after drop_out goes back on track *Possibly Fixed*
+        - look up Cygwin
 
 
     Features:
+        - Print double (or more) pit stops (pit passings in a row)
+        - Tests (test_all() fxn)
         - check for TX passings < 10 ms apart (wrongly assigned tx)
         - UI?
 
@@ -16,7 +20,7 @@ Things To Do:
         - Log file
             > log(string) in Util.py
 
-        - long laps on not-green flag (use self.flag) NEED TO TEST
+        - long laps on not-green flag (use self.flag)
 
         - AbnormalLapCheck -> check_time()
             > self.last_time can resolve to "IN PIT" and not a timestamp. Error safe for now but maybe
