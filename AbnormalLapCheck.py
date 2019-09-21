@@ -67,6 +67,7 @@ class TeamLapCheck:
     def check_time(self, last_time):
 
         self.flag = get_race_data()['flag']  # refresh to current flag status
+        not_triggered = (not self.msg_triggered) and (not self.drop_out_triggered)
 
         if self.flag == 'green':  # ignore abnormal laps when not green
 
@@ -80,8 +81,6 @@ class TeamLapCheck:
                 abnormal_short = best_time_ms + (60*1000) <= last_time < (best_time_ms * 2)
                 over_double = (best_time_ms * 2) <= last_time < (best_time_ms * 2) + (30*1000)
                 abnormal_long = (best_time_ms * 2) + (30*1000) <= last_time < (20*60*1000) - last_time
-
-                not_triggered = (not self.msg_triggered) and (not self.drop_out_triggered)
 
                 if abnormal_short and not_triggered:
                     self.message_trigger()
@@ -97,14 +96,13 @@ class TeamLapCheck:
                     self.message_trigger()
                     log_print('Car {carnum} has an abnormally long lap at: {time}'.format(carnum=self.car_num,
                                                                                           time=self.total_time))
-
-                elif self.drop_out_check() and not_triggered:
-                    self.drop_out()
-                    log_print(
-                        'Car {carnum} has not hit for 20 mins, last crossing at {time}'.format(carnum=self.car_num,
-                                                                                               time=self.total_time))
                 elif self.normal_lap_check():
                     self.normal_lap()
+        if self.drop_out_check() and not_triggered:
+            self.drop_out()
+            log_print(
+                'Car {carnum} has not hit for 20 mins, last crossing at {time}'.format(carnum=self.car_num,
+                                                                                       time=self.total_time))
 
 
 def instantiate_team_lap_check():

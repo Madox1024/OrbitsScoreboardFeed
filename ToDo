@@ -2,7 +2,7 @@ Things To Do:
 
     Fixes:
         - Why is it Freezing after dropouts?
-        - Limit Resource workload by adding lap# checking against last lap#, only trigger when lap# changes
+        - Limit Resource workload by adding lap# checking against last lap#, only trigger checks when lap# changes
         - Reset after drop_out goes back on track *Possibly Fixed*
         - look up Cygwin
 
@@ -28,4 +28,4 @@ Things To Do:
             > *** Fixed - added if to catch '' and 'IN PIT' to start_abnormal_lap_check() ***
 
         - Double pit stops aren't being logged
-            > *** Fixed - pit stops will be monitored but not logged ***
+            > *** Fixed - double pit stops will be monitored but not logged ***
