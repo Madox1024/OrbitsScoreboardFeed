@@ -44,7 +44,7 @@ def log_print(message):
     time_stamp = (time.ctime(time.time()))
     file_name = time_stamp[:-13] + ' Log File.txt'
     with open(file_name, 'a+') as log_file:
-        log_message = message + ' ' + time_stamp[11:]
+        log_message = message + ' - ' + time_stamp[11:19]
         log_file.write(log_message + '\n')
         print(message)
 
@@ -53,5 +53,5 @@ def log_only(message):
     time_stamp = (time.ctime(time.time()))
     file_name = time_stamp[:-13] + ' Log File.txt'
     with open(file_name, 'a+') as log_file:
-        fixed_stamp = message + ' ' + time_stamp[11:]
+        fixed_stamp = message + ' - ' + time_stamp[11:19]
         log_file.write(fixed_stamp + '\n')

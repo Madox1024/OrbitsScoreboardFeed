@@ -70,7 +70,8 @@ def instantiate_with_old_pit_times():
             log_only('{carnum} imported pit stop at: {timestamp}'.format(carnum=driver.car_num,
                                                                          timestamp=gen_time_stamp(old_pit_time)))
         else:
-            log_only('{carnum} no pit time'.format(carnum=driver.car_num))
+            driver.refresh_pit(0)
+            log_only('{carnum} no pit time, set to 0 ms'.format(carnum=driver.car_num))
     return driver_stint_dict
 
 
