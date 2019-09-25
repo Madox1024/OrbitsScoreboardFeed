@@ -1,6 +1,5 @@
 import time
 
-from Parser import gen_last_pit_time, get_stint_info
 from Util import calc_millisec, fix_time, gen_time_stamp, log_print, log_only
 
 refresh_rate = .5
@@ -45,17 +44,17 @@ def add_driver(driver_dict, stint_info):
             return new_driver_obj
 
 
-def instantiate_driver_stint():
-    got_stint_info = get_stint_info()
+def instantiate_driver_stint(get_stint_info):
+    stint_info = get_stint_info
     driver_stint_dict = {}
-    for team in got_stint_info:
-        driver_stint_dict[team] = DriverStint(team, got_stint_info)
+    for team in stint_info:
+        driver_stint_dict[team] = DriverStint(team, stint_info)
     return driver_stint_dict
 
 
-def instantiate_with_old_pit_times(file_name):
-    driver_stint_dict = instantiate_driver_stint()
-    last_pit_dict = gen_last_pit_time(file_name)
+def instantiate_with_old_pit_times(gen_last_pit_dict, get_stint_info):
+    driver_stint_dict = instantiate_driver_stint(get_stint_info)
+    last_pit_dict = gen_last_pit_dict
     for driver_key in driver_stint_dict:
         driver = driver_stint_dict[driver_key]
         if driver.car_num in last_pit_dict:
@@ -69,16 +68,16 @@ def instantiate_with_old_pit_times(file_name):
     return driver_stint_dict
 
 
-def start_dsc_instantiation(restart, file_name):
+def start_dsc_instantiation(restart, gen_last_pit_dict, get_stint_info):
     if restart:
-        result = instantiate_with_old_pit_times(file_name)
+        result = instantiate_with_old_pit_times(gen_last_pit_dict, get_stint_info)
     else:
-        result = instantiate_driver_stint()
+        result = instantiate_driver_stint(get_stint_info)
     return result
 
 
-def start_driver_stint_check(driver_stint_dict):
-    stint_info = get_stint_info()
+def start_driver_stint_check(driver_stint_dict, xml_parser):
+    stint_info = xml_parser.new_stint_info()
     if len(driver_stint_dict) < len(stint_info):
         new_driver = add_driver(driver_stint_dict, stint_info)
         driver_stint_dict[new_driver.reg_num] = new_driver
