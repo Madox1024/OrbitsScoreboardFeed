@@ -38,12 +38,6 @@ class DriverStint:
             return False
 
 
-def missing_driver(car_num):
-    log_print(
-        'Car {carnum} is missing from the scoreboard feed and is no longer being monitored!'.format(carnum=car_num)
-    )
-
-
 def add_driver(driver_dict, stint_info):
     for driver in stint_info:
         if driver not in driver_dict:
@@ -59,9 +53,9 @@ def instantiate_driver_stint():
     return driver_stint_dict
 
 
-def instantiate_with_old_pit_times():
+def instantiate_with_old_pit_times(file_name):
     driver_stint_dict = instantiate_driver_stint()
-    last_pit_dict = gen_last_pit_time()
+    last_pit_dict = gen_last_pit_time(file_name)
     for driver_key in driver_stint_dict:
         driver = driver_stint_dict[driver_key]
         if driver.car_num in last_pit_dict:
@@ -75,9 +69,9 @@ def instantiate_with_old_pit_times():
     return driver_stint_dict
 
 
-def start_dsc_instantiation(restart):
+def start_dsc_instantiation(restart, file_name):
     if restart:
-        result = instantiate_with_old_pit_times()
+        result = instantiate_with_old_pit_times(file_name)
     else:
         result = instantiate_driver_stint()
     return result
@@ -93,7 +87,11 @@ def start_driver_stint_check(driver_stint_dict):
     for driver_key in driver_stint_dict:
         driver = driver_stint_dict[driver_key]
         if driver.reg_num not in stint_info:
-            missing_driver(driver.car_num)
+            log_print(
+                'Car {carnum} is missing from the scoreboard feed and is no longer being monitored!'.format(
+                    carnum=driver.car_num)
+            )
+            driver_stint_dict.pop(driver_key)  # this needs testing
             break
 
         new_driver_info = stint_info[driver.reg_num]

@@ -2,7 +2,7 @@ import csv
 import time
 import xml.etree.ElementTree as ET
 
-from Util import calc_millisec
+from Util import calc_millisec, log_print
 
 xml = 'current.xml'  # use 'current.xml' not results
 parse_wait = 0.3  # seconds
@@ -68,19 +68,25 @@ def get_race_data():
         return get_race_data()
 
 
-def gen_last_pit_time():
-    with open('CurrentPassings.csv', 'r') as passings_csv:
-        passings_obj = csv.reader(passings_csv)
-        passings_dict = {}
-        for passing in passings_obj:
-            try:
-                if 'P' in passing[3]:
-                    if passing[1] in passings_dict:
-                        if passings_dict[passing[1]] < calc_millisec(passing[7]):
+def gen_last_pit_time(file_name):
+    if file_name != 'N/A':
+        with open(file_name, 'r') as passings_csv:
+            passings_obj = csv.reader(passings_csv)
+            passings_dict = {}
+            for passing in passings_obj:
+                try:
+                    if 'P' in passing[3]:
+                        if passing[1] in passings_dict:
+                            if passings_dict[passing[1]] < calc_millisec(passing[7]):
+                                passings_dict[passing[1]] = calc_millisec(passing[7])
+                        elif passing[1] != '':
                             passings_dict[passing[1]] = calc_millisec(passing[7])
-                    elif passing[1] != '':
-                        passings_dict[passing[1]] = calc_millisec(passing[7])
-            except IndexError:
-                time.sleep(1)
-                return gen_last_pit_time()
-        return passings_dict
+                except IndexError:
+                    time.sleep(1)
+                    return gen_last_pit_time(file_name)
+            return passings_dict
+    else:
+        log_print('Fatal Error: attempting to generate last pit time with no passings file name given')
+        log_print('Ending program')
+        #  End Program xD
+        #  Also this should be unreachable?

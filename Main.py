@@ -6,65 +6,75 @@ from DriverStintCheck import start_driver_stint_check, start_dsc_instantiation
 from Util import log_print
 
 
-def lap_times_mod_time(file_name, tries_count):
-    if tries_count > 30:
-        log_print('Cannot find file, please make sure that the file is named exactly "CurrentPassings.csv"')
-        start_race(is_restart())
-    try:
-        result = os.path.getmtime(file_name)
-        return result
-    except FileNotFoundError:
-        if tries_count % 5 == 0:
-            log_print('Waiting for {filename} export...'.format(filename=file_name))
-        tries_count += 1
-        time.sleep(2)
-        return lap_times_mod_time(file_name, tries_count)
+class Startup:
+
+    def __init__(self):
+        self.restart = self.get_restart()
+
+        class TeamDicts:
+            def __init__(self, restart, passings_file_name):
+                log_print('Populating Driver Info')
+                self.driver_stint_dict = start_dsc_instantiation(restart, passings_file_name)
+                self.abnormal_lap_dict = instantiate_team_lap_check()
+
+        if self.restart:
+            self.passings_file_name = input("Please enter the name of the passings.csv file export "
+                                            "(Don't export yet): ")
+            self.get_passings_export()
+            self.team_dicts = TeamDicts(self.restart, self.passings_file_name)
+            self.driver_stint_dict = self.team_dicts.driver_stint_dict
+            self.abnormal_lap_dict = self.team_dicts.abnormal_lap_dict
+            self.start_monitors()
+        else:
+            self.passings_file_name = 'N/A'
+            self.team_dicts = TeamDicts(self.restart, self.passings_file_name)
+            self.driver_stint_dict = self.team_dicts.driver_stint_dict
+            self.abnormal_lap_dict = self.team_dicts.abnormal_lap_dict
+            self.start_monitors()
+
+    def get_restart(self):
+        restart_input = (input('Has the race started? Y/N: ')).upper()
+        if restart_input == 'Y':
+            return True
+        elif restart_input == 'N':
+            return False
+        else:
+            log_print('Invalid Input \nPlease enter either "Y" (Yes) or "N" (No)')
+            return self.get_restart()
+
+    def get_mod_time(self, tries_count):
+        if tries_count > 30:
+            log_print('Cannot find file, please make sure that the file is named exactly "{filename}"'.format(
+                filename=self.passings_file_name))
+            self.get_passings_export()
+        else:
+            try:
+                result = os.path.getmtime(self.passings_file_name)
+                return result
+            except FileNotFoundError:
+                if tries_count % 5 == 0:
+                    log_print('Waiting for {filename} export...'.format(filename=self.passings_file_name))
+                tries_count += 1
+                time.sleep(2)
+                return self.get_mod_time(tries_count)
+
+    def get_passings_export(self):
+        log_print("Please export {filename}".format(filename=self.passings_file_name))
+        if abs(self.get_mod_time(0) - time.time()) < 3:
+            log_print('Export Found!')
+            time.sleep(1)
+        else:
+            log_print(
+                "{filename} is too old. Deleting {filename}, wait for prompt to export".format(
+                    filename=self.passings_file_name))
+            os.remove(self.passings_file_name)
+            self.get_passings_export()
+
+    def start_monitors(self):
+        log_print('Initiating Monitors')
+        while True:
+            start_driver_stint_check(self.driver_stint_dict)
+            start_abnormal_lap_check(self.abnormal_lap_dict)
 
 
-def start_monitors(restart):
-    driver_info_msg = 'Populating Driver Info'
-    log_print(driver_info_msg)
-    driver_stint_dict = start_dsc_instantiation(restart)
-    abnormal_lap_dict = instantiate_team_lap_check()
-    log_print('Initiating Monitors')
-    while True:
-        start_driver_stint_check(driver_stint_dict)
-        start_abnormal_lap_check(abnormal_lap_dict)
-        #  add leaderboard feed
-
-
-def is_restart():
-    restart_input = input('Has the race started? Y/N: ')
-    if restart_input.upper() == 'Y':
-        return True
-    elif restart_input.upper() == 'N':
-        return False
-    else:
-        log_print('Invalid Input \nPlease enter either "Y" (Yes) or "N" (No)')
-        return is_restart()
-
-
-def get_passings_export(file_name, restart):
-    if abs(lap_times_mod_time(file_name, 0) - time.time()) < 3:
-        export_found = 'Export Found!'
-        log_print(export_found)
-        time.sleep(2)
-        start_monitors(restart)
-    else:
-        log_print("{filename} is too old. Deleting {filename}, wait for prompt to export".format(filename=file_name))
-        os.remove(file_name)
-        get_passings_export(file_name, restart)
-
-
-def start_race(restart):
-    if restart:
-        file_name = 'CurrentPassings.csv'
-        log_print('Please export a passings csv and name it EXACTLY: "{filename}"'.format(filename=file_name))
-        time.sleep(2)
-        log_print('You have 1 Minute'.format(filename=file_name))
-        get_passings_export(file_name, restart)
-    else:
-        start_monitors(restart)
-
-
-start_race((is_restart()))
+start_up = Startup()
