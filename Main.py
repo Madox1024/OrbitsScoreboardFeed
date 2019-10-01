@@ -1,10 +1,10 @@
 import os
 import time
 
-from AbnormalLapCheck import start_abnormal_lap_check, instantiate_team_lap_check
-from DriverStintCheck import start_driver_stint_check, start_dsc_instantiation
-from Util import log_print
+from AbnormalLapCheck import abnormal_lap_check, instantiate_team_lap_check
+from DriverStintCheck import driver_stint_check, start_dsc_instantiation
 from Parser import CSVParser, XMLParser
+from Util import log_print
 
 
 class Startup:
@@ -76,9 +76,9 @@ class Startup:
     def start_monitors(self):
         log_print('Initiating Monitors')
         while True:
-            start_driver_stint_check(self.driver_stint_dict, self.xml_parser)
-            start_abnormal_lap_check(self.abnormal_lap_dict, self.xml_parser)
+            driver_stint_check(self.driver_stint_dict, self.xml_parser)
+            abnormal_lap_check(self.abnormal_lap_dict, self.xml_parser)
 
 
 start_up = Startup()
-
+start_up.start_monitors()

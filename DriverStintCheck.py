@@ -76,8 +76,8 @@ def start_dsc_instantiation(restart, gen_last_pit_dict, get_stint_info):
     return result
 
 
-def start_driver_stint_check(driver_stint_dict, xml_parser):
-    stint_info = xml_parser.new_stint_info()
+def driver_stint_check(driver_stint_dict, xml_parser):
+    stint_info = xml_parser.get_stint_info()
     if len(driver_stint_dict) < len(stint_info):
         new_driver = add_driver(driver_stint_dict, stint_info)
         driver_stint_dict[new_driver.reg_num] = new_driver

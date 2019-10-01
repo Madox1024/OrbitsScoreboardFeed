@@ -2,7 +2,7 @@ import csv
 import time
 import xml.etree.ElementTree as ET
 
-from Util import calc_millisec, log_print
+from Util import calc_millisec
 
 
 class XMLParser:
@@ -91,8 +91,3 @@ class CSVParser:
                         time.sleep(1)
                         return self.gen_last_pit_dict()
                 return passings_dict
-        else:
-            log_print('Fatal Error: attempting to generate last pit time with no passings file name given')
-            log_print('Ending program')
-            #  End Program xD
-            #  Also this should be unreachable?

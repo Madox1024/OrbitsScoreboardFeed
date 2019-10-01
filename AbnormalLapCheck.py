@@ -116,7 +116,7 @@ def add_driver(driver_dict, leader_board, xml_parser):
             return new_team_obj
 
 
-def start_abnormal_lap_check(team_obj_dict, xml_parser):
+def abnormal_lap_check(team_obj_dict, xml_parser):
     leader_board = xml_parser.get_leader_board()
     if len(team_obj_dict) < len(leader_board):
         new_driver = add_driver(team_obj_dict, leader_board, xml_parser)
