@@ -1,19 +1,17 @@
 Things To Do:
 
     Fixes:
-        - Missing Driver continues to trigger b/c driver_stint_dict is formed outside of WT loop in Main.py
-            > Objectifying Main.py could make this easier to solve
-            > line 94 possibly fix needs testing
         - Why is it Freezing after dropouts?
-        - Limit Resource workload by adding lap# checking against last lap#, only trigger checks when lap# changes
         - Reset after drop_out goes back on track *Possibly Fixed*
         - Passing around passing_file_name through too many fxns, figure a better way?
         - look up Cygwin
 
 
     Features:
+        - Limit Resource workload by adding lap# checking against last lap#, only trigger checks when lap# changes
         - Objectify Parser.py
         - Implement In-pit Out-pit into DSC
+            > Ask Mike and other Pit dudes how accurate the pit stall export is.
         - Print double (or more) pit stops (pit passings in a row)
         - Tests (test_all() fxn)
         - check for TX passings < 10 ms apart (wrongly assigned tx)
@@ -21,7 +19,10 @@ Things To Do:
 
 
     Done:
-        - Objectify Main.py
+        - Objectify Main.py and Parser.py
+        - Missing Driver continues to trigger b/c driver_stint_dict is formed outside of WT loop in Main.py
+            > Objectifying Main.py could make this easier to solve
+            > line 94 possibly fix needs testing
         - abnormal lap checks disabled for pitpassing and + 1 lap (if since_pit > 2: *check laps*)
 
         - Log file

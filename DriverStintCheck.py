@@ -13,8 +13,9 @@ class DriverStint:
         self.car_num = self.initial_stint_info[reg_num]['car_number']
         self.pit_time = calc_millisec(self.initial_stint_info[reg_num]['total_time'])
         self.last_time_line = self.initial_stint_info[reg_num]['last_time_line']
-        self.pit_msg_sent = False
         self.over_stint_triggered = False
+        self.consecutive_pit_passings = 0
+    #  def pit_counter(self, pit_count):
 
     def over_stint(self):
         if not self.over_stint_triggered:
@@ -24,9 +25,15 @@ class DriverStint:
         self.pit_time = new_pit
 
     def pit_stop(self, new_time_line, new_pit):
-        self.last_time_line = new_time_line
-        self.refresh_pit(new_pit)
-        self.over_stint_triggered = False
+        if self.pit_time != new_pit:
+            self.last_time_line = new_time_line
+            self.refresh_pit(new_pit)
+            log_only('Pit Stop: {carnum} at {time}'.format(carnum=self.car_num,
+                                                           time=self.pit_time))
+            self.consecutive_pit_passings += 1
+            if self.consecutive_pit_passings > 1:
+                log_print('Consecutive Pit Passings Detected: {num}'.format(num=self.consecutive_pit_passings))
+            self.over_stint_triggered = False
 
     def stint_check(self, new_time):
         if new_time - int(self.pit_time) > 2*60*60*1000:  # milliseconds in 2 hours
@@ -97,8 +104,10 @@ def driver_stint_check(driver_stint_dict, xml_parser):
         driver.last_time_line = new_driver_info['last_time_line']
         new_lap_time = calc_millisec(new_driver_info['total_time'])
 
+        #  Stick this in your DSC object
         if driver.last_time_line == "Start/Finish":
             driver.pit_msg_sent = False
+            driver.consecutive_pit_passings = 0
             if driver.stint_check(new_lap_time) and not driver.over_stint_triggered:
                 driver.over_stint()
                 current_time_stamp = fix_time(stint_info[driver.reg_num]['total_time'])
@@ -107,8 +116,5 @@ def driver_stint_check(driver_stint_dict, xml_parser):
 
         else:
             driver.pit_stop(new_driver_info['last_time_line'], new_lap_time)
-            if not driver.pit_msg_sent:
-                log_only('Pit Stop: {carnum} at {time}'.format(carnum=driver.car_num,
-                                                               time=new_driver_info['total_time']))
-                driver.pit_msg_sent = True
+
     time.sleep(refresh_rate)
